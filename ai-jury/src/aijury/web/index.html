@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Jury</title>
+<style>
+:root{
+  --paper:#e9edf2;
+  --paper-deep:#dde3ea;
+  --ink:#16232f;
+  --ink-soft:#54677a;
+  --ink-faint:#8798a8;
+  --rule:#c3cdd8;
+  --brass:#9a6f2e;      /* adversary only */
+  --teal:#1f6f63;       /* verified only */
+  --flag:#a83a2b;       /* failed verification only */
+  --sheet:#f7f9fb;
+  --focus:#2c5f8a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 28px 96px}
+
+/* ---- masthead ---- */
+header{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:34px;
+  display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap}
+h1{font:600 27px/1.1 ui-sans-serif,system-ui,sans-serif;letter-spacing:-.02em;margin:0}
+h1 span{color:var(--ink-faint);font-weight:400}
+.status{font-size:13px;color:var(--ink-soft);display:flex;gap:16px;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--teal);display:inline-block;
+  margin-right:6px;vertical-align:middle}
+.dot.down{background:var(--flag)}
+
+/* ---- ask ---- */
+.ask{background:var(--sheet);border:1px solid var(--rule);padding:22px;margin-bottom:34px}
+label{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:7px}
+textarea{
+  width:100%;min-height:82px;resize:vertical;padding:12px 13px;
+  border:1px solid var(--rule);background:#fff;color:var(--ink);
+  font:16px/1.5 inherit;
+}
+textarea:focus,select:focus,input:focus,button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.controls{display:flex;gap:22px;align-items:flex-end;margin-top:15px;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{margin:0}
+select,input[type=number]{padding:8px 10px;border:1px solid var(--rule);background:#fff;color:var(--ink);font:14px inherit;width:88px}
+button{
+  padding:11px 26px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+  font:500 15px inherit;cursor:pointer;margin-left:auto;
+}
+button:hover:not(:disabled){background:#233748}
+button:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---- live log ---- */
+.log{border-left:2px solid var(--rule);padding-left:18px;margin-bottom:30px;display:none}
+.log.on{display:block}
+.log-line{font-size:14px;color:var(--ink-soft);padding:3px 0;display:flex;gap:10px}
+.log-line b{color:var(--ink);font-weight:500;min-width:150px}
+.log-line.fresh{color:var(--ink)}
+
+/* ---- live chamber: proof the panel is working, not frozen ---- */
+.chamber{display:none;background:var(--sheet);border:1px solid var(--rule);padding:20px 22px;margin-bottom:22px}
+.chamber.on{display:block}
+.chamber-head{display:grid;grid-template-columns:92px 1fr auto;gap:18px;align-items:center}
+.clock{font:600 30px/1 ui-serif,Georgia,"Times New Roman",serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.floor-who{font-weight:600;font-size:16px}
+.floor-sub{font-size:13px;color:var(--ink-soft);margin-top:2px}
+.link{font-size:12px;color:var(--ink-faint);display:flex;align-items:center;gap:7px;justify-self:end}
+.beat{width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block}
+.beat.go{animation:throb 1.15s ease-in-out infinite}
+.scan{height:3px;background:var(--paper-deep);margin:14px 0 16px;overflow:hidden;position:relative}
+.scan i{position:absolute;top:0;bottom:0;width:26%;background:var(--ink);animation:scan 2.4s ease-in-out infinite}
+.roster{display:flex;flex-wrap:wrap;gap:8px}
+.seat{border:1px solid var(--rule);padding:5px 10px;font-size:12.5px;color:var(--ink-soft);
+  display:inline-flex;align-items:center;gap:7px}
+.seat i{width:7px;height:7px;border-radius:50%;background:var(--rule);display:block;flex-shrink:0}
+.seat.wait{color:var(--ink);border-color:var(--ink)}
+.seat.wait i{background:var(--focus);animation:throb 1s ease-in-out infinite}
+.seat.done i{background:var(--teal);animation:none}
+@keyframes throb{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.55);opacity:.4}}
+@keyframes scan{0%{left:-28%}100%{left:100%}}
+
+/* ---- round spine ---- */
+.spine{position:relative;padding-left:56px;margin-bottom:38px}
+.spine::before{content:"";position:absolute;left:19px;top:8px;bottom:8px;
+  width:1px;background:var(--rule)}
+.round{position:relative;margin-bottom:30px}
+.round-no{
+  position:absolute;left:-56px;top:0;width:38px;height:38px;
+  border:1px solid var(--rule);background:var(--paper);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:600;color:var(--ink-soft);
+}
+.round-title{font-size:14px;color:var(--ink-soft);margin:9px 0 14px}
+.round-title em{font-style:normal;color:var(--ink)}
+
+.pos{border-left:3px solid var(--rule);padding:2px 0 2px 15px;margin-bottom:17px}
+.pos.adv{border-left-color:var(--brass)}
+.pos-head{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;margin-bottom:5px}
+.who{font-size:14px;font-weight:600}
+.pos.adv .who{color:var(--brass)}
+.persp{font-size:13px;color:var(--ink-faint)}
+.moved{font-size:12px;color:var(--focus);border:1px solid var(--focus);padding:1px 7px}
+.pos-body{font-size:15px;margin:0 0 7px}
+.concede{font-size:13.5px;color:var(--ink-soft);border-left:2px solid var(--paper-deep);
+  padding-left:11px;margin:7px 0}
+.claims{list-style:none;margin:8px 0 0;padding:0;font-size:13.5px}
+.claims li{padding:2px 0 2px 19px;position:relative;color:var(--ink-soft)}
+.claims li::before{position:absolute;left:0;font-weight:600}
+.claims li.ok::before{content:"✓";color:var(--teal)}
+.claims li.no::before{content:"✕";color:var(--flag)}
+.claims li.un::before{content:"·";color:var(--ink-faint)}
+
+/* ---- confidence: solid = verified support, hatched = unverified ---- */
+.conf{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-soft)}
+.bar{width:92px;height:9px;background:var(--paper-deep);position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink);display:block}
+.bar i.hatch{
+  background:repeating-linear-gradient(45deg,var(--ink-faint) 0 2px,transparent 2px 5px);
+}
+
+/* ---- verdict ---- */
+.verdict{background:var(--sheet);border:1px solid var(--ink);border-top-width:3px;padding:28px;margin-bottom:26px}
+.outcome{font-size:14px;font-weight:600;margin-bottom:14px}
+.outcome.resolved{color:var(--teal)}
+.outcome.grey{color:var(--brass)}
+.outcome.unresolved{color:var(--flag)}
+.answer{
+  font:400 20px/1.5 ui-serif,Georgia,"Times New Roman",serif;
+  margin:0 0 22px;max-width:66ch;
+}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:22px;border-top:1px solid var(--rule);padding-top:19px}
+.stat{font-size:13px;color:var(--ink-soft)}
+.stat b{display:block;font-size:20px;font-weight:600;color:var(--ink);margin-bottom:1px}
+h3{font:600 14px inherit;margin:24px 0 9px;color:var(--ink-soft)}
+.list{margin:0;padding-left:19px;font-size:14.5px;max-width:74ch}
+.list li{margin-bottom:5px}
+.dissent{border-left:3px solid var(--brass);padding-left:14px;margin-bottom:11px;font-size:14.5px}
+.dissent small{display:block;color:var(--ink-soft);font-size:13px;margin-top:2px}
+
+.panel{background:var(--sheet);border:1px solid var(--rule);padding:22px;margin-bottom:26px}
+.crux{font-size:14.5px;padding:7px 0;border-bottom:1px solid var(--paper-deep);
+  display:flex;gap:12px;justify-content:space-between;align-items:baseline}
+.crux:last-child{border-bottom:0}
+.crux .by{font-size:12.5px;color:var(--ink-faint);white-space:nowrap}
+.crux.done{color:var(--teal)}
+
+.note{border-left:3px solid var(--flag);padding:9px 14px;margin-bottom:9px;
+  font-size:14px;background:var(--sheet)}
+.empty{color:var(--ink-faint);font-size:15px;padding:44px 0;max-width:56ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:640px){
+  .wrap{padding:26px 17px 60px}
+  .spine{padding-left:0}
+  .spine::before{display:none}
+  .round-no{position:static;margin-bottom:9px}
+  button{margin-left:0;width:100%}
+  .chamber-head{grid-template-columns:1fr;gap:10px}
+  .link{justify-self:start}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>AI Jury <span id="ver"></span></h1>
+  <div class="status" id="status"><span class="dot down"></span>connecting</div>
+</header>
+
+<section class="ask">
+  <label for="q">Question for the panel</label>
+  <textarea id="q" placeholder="Should we migrate the billing service to event sourcing?"></textarea>
+  <div class="controls">
+    <button id="go">Convene panel</button>
+  </div>
+</section>
+
+<div class="chamber" id="chamber">
+  <div class="chamber-head">
+    <div class="clock" id="clock">0:00</div>
+    <div>
+      <div class="floor-who" id="floor-who">Convening</div>
+      <div class="floor-sub" id="floor-sub">The panel is waking up. Long pauses mean a model call is in flight, not a freeze.</div>
+    </div>
+    <div class="link"><span class="beat go" id="beat"></span><span id="link-label">live</span></div>
+  </div>
+  <div class="scan" id="scan"><i></i></div>
+  <div class="roster" id="roster"></div>
+</div>
+<div class="log" id="log"></div>
+<div id="out"><p class="empty">No deliberation yet. Pose a question. The panel sizes itself and argues until it reaches an outcome.</p></div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let live = null;
+let clockTimer = null;
+let convenedAt = 0;
+
+fetch("/api/health").then(r => r.json()).then(h => {
+  $("ver").textContent = "v" + h.version;
+  $("status").innerHTML =
+    `<span><span class="dot"></span>${esc(h.provider)}</span>` +
+    `<span>${h.lessons_active} lesson${h.lessons_active === 1 ? "" : "s"} active</span>`;
+}).catch(() => { $("status").innerHTML = '<span class="dot down"></span>server unreachable'; });
+
+const LABELS = {
+  clerk: "Clerk", framer: "Framer", panel: "Panel",
+  adversary: "Adversary", moderator: "Moderator",
+  verifier: "Verifier", synthesizer: "Synthesizer",
+};
+
+function pretty(name) {
+  return LABELS[name] || String(name).replace(/[_-]+/g, " ");
+}
+
+function fmtClock(ms) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  return m + ":" + String(s % 60).padStart(2, "0");
+}
+
+function startClock() {
+  convenedAt = Date.now();
+  clearInterval(clockTimer);
+  const tick = () => { $("clock").textContent = fmtClock(Date.now() - convenedAt); };
+  tick();
+  clockTimer = setInterval(tick, 250);
+}
+
+function stopClock() {
+  clearInterval(clockTimer);
+  clockTimer = null;
+}
+
+function ensureSeat(who) {
+  if (!who || who === "clerk" || who === "panel") return null;
+  let el = $("roster").querySelector(`[data-who="${CSS.escape(who)}"]`);
+  if (el) return el;
+  el = document.createElement("span");
+  el.className = "seat";
+  el.dataset.who = who;
+  el.innerHTML = `<i></i>${esc(pretty(who))}`;
+  $("roster").appendChild(el);
+  return el;
+}
+
+function markSeat(who, state) {
+  const el = ensureSeat(who);
+  if (!el) return;
+  el.classList.remove("wait", "done");
+  if (state) el.classList.add(state);
+}
+
+function onFloor(who, action) {
+  $("floor-who").textContent = pretty(who);
+  $("floor-sub").textContent = action || "Waiting on the model.";
+  $("roster").querySelectorAll(".seat.wait").forEach(n => n.classList.remove("wait"));
+  markSeat(who, "wait");
+}
+
+function seedRoster() {
+  $("roster").innerHTML = "";
+  ["framer", "adversary", "moderator", "verifier", "synthesizer"].forEach(ensureSeat);
+}
+
+function hideChamber() {
+  $("chamber").className = "chamber";
+  $("scan").style.display = "";
+  stopClock();
+}
+
+function logLine(label, detail) {
+  const el = document.createElement("div");
+  el.className = "log-line fresh";
+  el.innerHTML = `<b>${esc(label)}</b><span>${esc(detail)}</span>`;
+  $("log").appendChild(el);
+  [...$("log").children].slice(0, -1).forEach(n => n.classList.remove("fresh"));
+  el.scrollIntoView({ block: "nearest" });
+}
+
+const NARRATE = {
+  "frame.complete": a => ["Question framed", `${a.question_type} · ${(a.perspectives||[]).join(", ") || "default panel"}`],
+  "jury.spawned":   a => ["Panel seated", `${a.count} jurors · ${(a.models||[]).join(", ")}`],
+  "phase.round":    a => [`Round ${a.round}`, a.round === 0 ? "jurors drafting independently" : "cross-examination"],
+  "moderator.cruxes": a => ["Disagreements isolated", `${a.open} open${a.talking_past ? " · parties talking past each other" : ""}`],
+  "verification.complete": a => ["Claims checked", `${a.judged} judged, ${a.failed} failed, ${a.unverifiable} unverifiable`],
+  "juror.failed":   a => ["Juror dropped", `${a.juror}`],
+  "agent.failed":   a => ["Agent dropped", `${a.agent} left the panel`],
+  "round.complete": a => [`Round ${a.round} closed`, `agreement ${a.agreement} · ${a.reason}`],
+  "verdict.finalized": a => ["Verdict reached", `${a.outcome} at ${a.confidence}`],
+};
+
+function bar(conf, verifiedRatio) {
+  const solid = Math.round(conf * verifiedRatio * 100);
+  const rest  = Math.round(conf * 100) - solid;
+  return `<span class="bar"><i style="width:${solid}%"></i>` +
+         `<i class="hatch" style="left:${solid}%;width:${Math.max(rest,0)}%"></i></span>`;
+}
+
+function claimClass(v) { return v === true ? "ok" : v === false ? "no" : "un"; }
+
+function render(d) {
+  const v = d.verdict;
+  const cls = v.outcome === "grey_area" ? "grey"
+            : v.outcome.startsWith("resolved") ? "resolved" : "unresolved";
+  const label = {
+    resolved: "Resolved", resolved_with_dissent: "Resolved, with dissent",
+    grey_area: "Grey area — no consensus exists", unresolved: "Unresolved",
+    escalate: "Escalated",
+  }[v.outcome] || v.outcome;
+
+  const rounds = {};
+  d.positions.forEach(p => (rounds[p.round_index] ||= []).push(p));
+
+  let html = `<div class="verdict">
+    <div class="outcome ${cls}">${esc(label)}</div>
+    <p class="answer">${esc(v.answer)}</p>
+    <div class="vgrid">
+      <div class="stat"><b>${v.confidence.toFixed(2)}</b>confidence${
+        d.checkable_claims ? ` · capped by ${d.verified_claims}/${d.checkable_claims} claims verified` : ""}</div>
+      <div class="stat"><b>${d.agreement.toFixed(2)}</b>panel agreement</div>
+      <div class="stat"><b>${v.rounds_used}</b>round${v.rounds_used === 1 ? "" : "s"} · ended on ${esc(d.stop_reason)}</div>
+      <div class="stat"><b>${(d.budget.tokens_in + d.budget.tokens_out).toLocaleString()}</b>tokens · ${d.budget.llm_calls} calls</div>
+    </div>`;
+
+  if (v.conclusions?.length) {
+    html += `<h3>Key points</h3><ul class="list">` + v.conclusions.map(c =>
+      `<li>${esc(c.statement)}${c.verified ? ' <span style="color:var(--teal)">verified</span>' : ""}</li>`).join("") + `</ul>`;
+  }
+  if (v.assumptions?.length)
+    html += `<h3>Assumed</h3><ul class="list">${v.assumptions.map(a => `<li>${esc(a)}</li>`).join("")}</ul>`;
+  if (v.dissent?.length)
+    html += `<h3>Dissent</h3>` + v.dissent.map(x =>
+      `<div class="dissent">${esc(x.position)}<small>${esc(x.author)} · ${esc(x.reason)} · held at ${x.confidence.toFixed(2)}</small></div>`).join("");
+  if (v.unresolved?.length)
+    html += `<h3>Left open</h3><ul class="list">${v.unresolved.map(u => `<li>${esc(u)}</li>`).join("")}</ul>`;
+  if (v.what_would_change_this?.length)
+    html += `<h3>What would change this</h3><ul class="list">${v.what_would_change_this.map(w => `<li>${esc(w)}</li>`).join("")}</ul>`;
+  html += `</div>`;
+
+  if (d.degraded?.length)
+    html += d.degraded.map(n => `<div class="note">Ran degraded: ${esc(n)}</div>`).join("");
+
+  html += `<div class="spine">` + Object.keys(rounds).sort((a,b) => a-b).map(r => {
+    const title = r === "0" ? "Independent drafts — jurors could not see each other"
+                            : "Cross-examination against anonymized positions";
+    return `<div class="round">
+      <div class="round-no">${r}</div>
+      <div class="round-title"><em>${esc(title)}</em></div>` +
+      rounds[r].map(p => {
+        const adv = p.author === "adversary";
+        return `<div class="pos${adv ? " adv" : ""}">
+          <div class="pos-head">
+            <span class="who">${esc(adv ? "Adversary" : p.author)}</span>
+            ${p.changed ? '<span class="moved">changed position</span>' : ""}
+            <span class="conf" style="margin-left:auto">${bar(p.confidence, d.verified_ratio)}${p.confidence.toFixed(2)}</span>
+          </div>
+          <p class="pos-body">${esc(p.summary)}</p>
+          ${p.change_reason ? `<div class="concede">Changed because: ${esc(p.change_reason)}</div>` : ""}
+          ${p.concedes ? `<div class="concede">Concedes: ${esc(p.concedes)}</div>` : ""}
+          ${p.claims?.length ? `<ul class="claims">${p.claims.map(c =>
+            `<li class="${claimClass(c.verified)}">${esc(c.text)}${c.note ? ` — ${esc(c.note)}` : ""}</li>`).join("")}</ul>` : ""}
+        </div>`;
+      }).join("") + `</div>`;
+  }).join("") + `</div>`;
+
+  if (d.cruxes?.length)
+    html += `<div class="panel"><h3 style="margin-top:0">Cruxes</h3>` + d.cruxes.map(c =>
+      `<div class="crux${c.resolved ? " done" : ""}"><span>${esc(c.description)}${
+        c.resolution ? ` — ${esc(c.resolution)}` : ""}</span><span class="by">${esc(c.resolvable_by)}</span></div>`).join("") + `</div>`;
+
+  if (d.belief_changes?.length)
+    html += `<div class="panel"><h3 style="margin-top:0">Who changed their mind</h3><ul class="list">` +
+      d.belief_changes.map(b => `<li>${esc(b.author)} in round ${b.round} — ${esc(b.reason)}</li>`).join("") + `</ul></div>`;
+
+  $("out").innerHTML = html;
+  $("scan").style.display = "none";
+  $("floor-who").textContent = "Verdict filed";
+  $("floor-sub").textContent = "The chamber is closed. Scroll for the record.";
+  $("roster").querySelectorAll(".seat.wait").forEach(n => {
+    n.classList.remove("wait");
+    n.classList.add("done");
+  });
+  stopClock();
+}
+
+function convene() {
+  const q = $("q").value.trim();
+  if (!q) { $("q").focus(); return; }
+  if (live) live.close();
+
+  $("go").disabled = true;
+  $("go").textContent = "Deliberating…";
+  $("log").className = "log on";
+  $("log").innerHTML = "";
+  $("out").innerHTML = '<p class="empty">Positions appear once deliberation closes. Watch the chamber above — a moving scan and a ticking clock mean the model call is still in flight.</p>';
+  $("chamber").className = "chamber on";
+  $("scan").style.display = "";
+  $("link-label").textContent = "live";
+  seedRoster();
+  onFloor("clerk", "Convening the panel. First model call is next.");
+  startClock();
+
+  const url = `/api/stream?question=${encodeURIComponent(q)}`;
+  live = new EventSource(url);
+
+  live.addEventListener("live", e => {
+    const { attributes } = JSON.parse(e.data);
+    const a = attributes || {};
+    onFloor(a.who || "clerk", a.action || "Waiting on the model.");
+    if (a.round != null) logLine("Floor", `round ${a.round} · ${a.action || ""}`.trim());
+  });
+  live.addEventListener("pulse", () => {
+    $("beat").className = "beat go";
+    $("link-label").textContent = "live · " + $("clock").textContent;
+  });
+  live.addEventListener("span", e => {
+    const { name, attributes, duration_ms } = JSON.parse(e.data);
+    const n = NARRATE[name];
+    if (n) {
+      const [a, b] = n(attributes || {});
+      logLine(a, b);
+    } else if (name.startsWith("agent.")) {
+      const who = name.slice("agent.".length);
+      const ms = duration_ms ? `${Math.round(duration_ms)} ms` : "done";
+      logLine(pretty(who) + " spoke", ms);
+      markSeat(who, "done");
+    }
+    if (name === "jury.spawned") {
+      (attributes.perspectives || []).forEach(p => ensureSeat(p));
+    }
+    if (name === "agent.failed") markSeat(attributes.agent, "");
+  });
+  live.addEventListener("verdict", e => render(JSON.parse(e.data)));
+  live.addEventListener("chat", e => {
+    const { reply } = JSON.parse(e.data);
+    hideChamber();
+    $("log").className = "log";
+    $("log").innerHTML = "";
+    $("out").innerHTML = `<div class="verdict"><p class="answer">${esc(reply)}</p></div>`;
+  });
+  live.addEventListener("error", e => {
+    const d = JSON.parse(e.data || "{}");
+    hideChamber();
+    $("out").innerHTML = `<div class="note">Deliberation stopped: ${esc(d.detail || "unknown failure")}. ` +
+      `Adjust the question or the round limit and convene again.</div>`;
+  });
+  const finish = () => {
+    live?.close();
+    live = null;
+    $("go").disabled = false;
+    $("go").textContent = "Convene panel";
+    $("beat").className = "beat";
+    stopClock();
+  };
+  live.addEventListener("done", finish);
+  live.onerror = () => { if (live?.readyState === 2) finish(); };
+}
+
+$("go").onclick = convene;
+$("q").addEventListener("keydown", e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") convene();
+});
+</script>
+</body>
+</html>

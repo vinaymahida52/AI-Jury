@@ -1,0 +1,6972 @@
+{
+  "schema_version": 1,
+  "project": "aijury",
+  "summary": {
+    "modules": 65,
+    "symbols": 321,
+    "lines_of_code": 5034,
+    "entry_points": [
+      "aijury.__init__",
+      "aijury.agents.__init__",
+      "aijury.api.__init__",
+      "aijury.cli",
+      "aijury.contracts.__init__",
+      "aijury.core.__init__",
+      "aijury.evaluation.__init__",
+      "aijury.evaluation.datasets.__init__",
+      "aijury.learning.__init__",
+      "aijury.llm.__init__",
+      "aijury.llm.anthropic_client",
+      "aijury.llm.openai_client",
+      "aijury.protocol.__init__",
+      "aijury.security.__init__",
+      "aijury.verification.__init__",
+      "tests.__init__",
+      "tests.conftest",
+      "tests.test_api",
+      "tests.test_codegraph",
+      "tests.test_contracts",
+      "tests.test_core",
+      "tests.test_deliberation",
+      "tests.test_evaluation",
+      "tests.test_learning",
+      "tests.test_llm",
+      "tests.test_security",
+      "tests.test_verification",
+      "tools.codegraph.__init__",
+      "tools.codegraph.build"
+    ]
+  },
+  "phases": [
+    "Cross-cutting \u2014 configuration",
+    "Cross-cutting \u2014 package root",
+    "Entry point",
+    "Phase 0 \u2014 contracts & schemas",
+    "Phase 0 \u2014 evaluation harness & scorer",
+    "Phase 1 \u2014 single-agent baseline (control arm)",
+    "Phase 2 \u2014 orchestration core",
+    "Phase 2 \u2014 provider abstraction",
+    "Phase 3 \u2014 agent roles & dynamic spawning",
+    "Phase 4 \u2014 deliberation protocol",
+    "Phase 5 \u2014 verification layer",
+    "Phase 6 \u2014 learning loop",
+    "Phase 7 \u2014 HTTP API & web console",
+    "Phase 8 \u2014 hardening",
+    "Tests",
+    "Tooling \u2014 project context for AI agents"
+  ],
+  "modules": [
+    {
+      "path": "src/aijury/__init__.py",
+      "module": "aijury.__init__",
+      "phase": "Cross-cutting \u2014 package root",
+      "doc": "AI Jury: multi-agent deliberation producing verified, calibrated verdicts.",
+      "loc": 3,
+      "imports": [],
+      "internal_deps": [],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/agents/__init__.py",
+      "module": "aijury.agents.__init__",
+      "phase": "Phase 3 \u2014 agent roles & dynamic spawning",
+      "doc": "",
+      "loc": 20,
+      "imports": [
+        "aijury.agents.adversary",
+        "aijury.agents.base",
+        "aijury.agents.framer",
+        "aijury.agents.juror",
+        "aijury.agents.moderator",
+        "aijury.agents.spawner",
+        "aijury.agents.synthesizer",
+        "aijury.agents.verifier"
+      ],
+      "internal_deps": [
+        "aijury.agents.adversary",
+        "aijury.agents.base",
+        "aijury.agents.framer",
+        "aijury.agents.juror",
+        "aijury.agents.moderator",
+        "aijury.agents.spawner",
+        "aijury.agents.synthesizer",
+        "aijury.agents.verifier"
+      ],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/agents/adversary.py",
+      "module": "aijury.agents.adversary",
+      "phase": "Phase 3 \u2014 agent roles & dynamic spawning",
+      "doc": "Adversary: structurally required opposition to whatever is winning.",
+      "loc": 58,
+      "imports": [
+        "__future__",
+        "aijury.agents.base",
+        "aijury.contracts.messages"
+      ],
+      "internal_deps": [
+        "aijury.agents.base",
+        "aijury.contracts.messages"
+      ],
+      "symbols": [
+        {
+          "name": "Adversary",
+          "kind": "class",
+          "signature": "class Adversary(Agent)",
+          "doc": "",
+          "lineno": 29,
+          "decorators": [],
+          "bases": [
+            "Agent"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Adversary.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, client, **kwargs) -> None",
+          "doc": "",
+          "lineno": 32,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "__init__",
+            "super"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Adversary.persona",
+          "kind": "method",
+          "signature": "def persona(self) -> str",
+          "doc": "",
+          "lineno": 35,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Adversary.attack",
+          "kind": "method",
+          "signature": "async def attack(self, ctx: AgentContext, question: str) -> Position",
+          "doc": "",
+          "lineno": 38,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "ask",
+            "current_positions",
+            "max",
+            "transcript"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/agents/base.py",
+      "module": "aijury.agents.base",
+      "phase": "Phase 3 \u2014 agent roles & dynamic spawning",
+      "doc": "Agent base class.",
+      "loc": 95,
+      "imports": [
+        "__future__",
+        "abc",
+        "aijury.contracts.messages",
+        "aijury.core.blackboard",
+        "aijury.core.budget",
+        "aijury.core.tracing",
+        "aijury.llm.base",
+        "dataclasses",
+        "pydantic",
+        "typing"
+      ],
+      "internal_deps": [
+        "aijury.contracts.messages",
+        "aijury.core.blackboard",
+        "aijury.core.budget",
+        "aijury.core.tracing",
+        "aijury.llm.base"
+      ],
+      "symbols": [
+        {
+          "name": "AgentContext",
+          "kind": "class",
+          "signature": "class AgentContext()",
+          "doc": "Everything an agent is allowed to touch. Explicit, so nothing reaches",
+          "lineno": 25,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Agent",
+          "kind": "class",
+          "signature": "class Agent(ABC)",
+          "doc": "",
+          "lineno": 36,
+          "decorators": [],
+          "bases": [
+            "ABC"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Agent.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, name: str, client: LLMClient, *, temperature: float=0.7) -> None",
+          "doc": "",
+          "lineno": 39,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "Agent.system_prompt",
+          "kind": "method",
+          "signature": "def system_prompt(self, ctx: AgentContext) -> str",
+          "doc": "",
+          "lineno": 45,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "join",
+            "persona"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Agent.persona",
+          "kind": "method",
+          "signature": "def persona(self) -> str",
+          "doc": "",
+          "lineno": 55,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Agent.ask",
+          "kind": "method",
+          "signature": "async def ask(self, ctx: AgentContext, schema: type[T], prompt: str, *, max_tokens: int=2000) -> T",
+          "doc": "Single metered, traced, schema-validated model call.",
+          "lineno": 59,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "AgentMessage",
+            "check",
+            "complete_structured",
+            "post",
+            "record",
+            "span",
+            "system_prompt",
+            "update"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/agents/framer.py",
+      "module": "aijury.agents.framer",
+      "phase": "Phase 3 \u2014 agent roles & dynamic spawning",
+      "doc": "Intake/Framer: classifies the question and designs the jury.",
+      "loc": 60,
+      "imports": [
+        "__future__",
+        "aijury.agents.base",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy"
+      ],
+      "internal_deps": [
+        "aijury.agents.base",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy"
+      ],
+      "symbols": [
+        {
+          "name": "Framer",
+          "kind": "class",
+          "signature": "class Framer(Agent)",
+          "doc": "",
+          "lineno": 33,
+          "decorators": [],
+          "bases": [
+            "Agent"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Framer.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, client, **kwargs) -> None",
+          "doc": "",
+          "lineno": 36,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "__init__",
+            "super"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Framer.persona",
+          "kind": "method",
+          "signature": "def persona(self) -> str",
+          "doc": "",
+          "lineno": 39,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Framer.run",
+          "kind": "method",
+          "signature": "async def run(self, ctx: AgentContext, question: str, max_perspectives: int) -> Frame",
+          "doc": "",
+          "lineno": 42,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "ask",
+            "event"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/agents/juror.py",
+      "module": "aijury.agents.juror",
+      "phase": "Phase 3 \u2014 agent roles & dynamic spawning",
+      "doc": "Juror: one perspective, one position per round.",
+      "loc": 78,
+      "imports": [
+        "__future__",
+        "aijury.agents.base",
+        "aijury.contracts.messages"
+      ],
+      "internal_deps": [
+        "aijury.agents.base",
+        "aijury.contracts.messages"
+      ],
+      "symbols": [
+        {
+          "name": "Juror",
+          "kind": "class",
+          "signature": "class Juror(Agent)",
+          "doc": "",
+          "lineno": 27,
+          "decorators": [],
+          "bases": [
+            "Agent"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Juror.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, name: str, perspective: str, client, **kwargs) -> None",
+          "doc": "",
+          "lineno": 30,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "__init__",
+            "super"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Juror.persona",
+          "kind": "method",
+          "signature": "def persona(self) -> str",
+          "doc": "",
+          "lineno": 34,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "format"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Juror.draft",
+          "kind": "method",
+          "signature": "async def draft(self, ctx: AgentContext, question: str) -> Position",
+          "doc": "Round 0: independent draft, blind to other jurors.",
+          "lineno": 37,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_stamp",
+            "ask",
+            "join"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Juror.cross_examine",
+          "kind": "method",
+          "signature": "async def cross_examine(self, ctx: AgentContext, question: str) -> Position",
+          "doc": "Round 1+: react to anonymized peer positions.",
+          "lineno": 54,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_stamp",
+            "ask",
+            "failed_claims",
+            "join",
+            "open_cruxes",
+            "transcript"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Juror._stamp",
+          "kind": "method",
+          "signature": "def _stamp(self, position: Position, ctx: AgentContext) -> Position",
+          "doc": "",
+          "lineno": 72,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/agents/moderator.py",
+      "module": "aijury.agents.moderator",
+      "phase": "Phase 3 \u2014 agent roles & dynamic spawning",
+      "doc": "Moderator: isolates cruxes and routes the debate.",
+      "loc": 73,
+      "imports": [
+        "__future__",
+        "aijury.agents.base",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "pydantic"
+      ],
+      "internal_deps": [
+        "aijury.agents.base",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy"
+      ],
+      "symbols": [
+        {
+          "name": "ModeratorReport",
+          "kind": "class",
+          "signature": "class ModeratorReport(BaseModel)",
+          "doc": "",
+          "lineno": 17,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Moderator",
+          "kind": "class",
+          "signature": "class Moderator(Agent)",
+          "doc": "",
+          "lineno": 42,
+          "decorators": [],
+          "bases": [
+            "Agent"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Moderator.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, client, **kwargs) -> None",
+          "doc": "",
+          "lineno": 45,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "__init__",
+            "super"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Moderator.persona",
+          "kind": "method",
+          "signature": "def persona(self) -> str",
+          "doc": "",
+          "lineno": 48,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Moderator.isolate_cruxes",
+          "kind": "method",
+          "signature": "async def isolate_cruxes(self, ctx: AgentContext, question: str) -> ModeratorReport",
+          "doc": "",
+          "lineno": 51,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "add_crux",
+            "ask",
+            "event",
+            "join",
+            "len",
+            "lower",
+            "open_cruxes",
+            "strip",
+            "transcript"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/agents/spawner.py",
+      "module": "aijury.agents.spawner",
+      "phase": "Phase 3 \u2014 agent roles & dynamic spawning",
+      "doc": "Dynamic jury construction.",
+      "loc": 70,
+      "imports": [
+        "__future__",
+        "aijury.agents.juror",
+        "aijury.config",
+        "aijury.contracts.taxonomy",
+        "aijury.llm.registry"
+      ],
+      "internal_deps": [
+        "aijury.agents.juror",
+        "aijury.config",
+        "aijury.contracts.taxonomy",
+        "aijury.llm.registry"
+      ],
+      "symbols": [
+        {
+          "name": "_DEFAULT_PERSPECTIVES",
+          "kind": "constant",
+          "signature": "_DEFAULT_PERSPECTIVES: dict[QuestionType, tuple[str, ...]]",
+          "doc": "",
+          "lineno": 16,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "spawn_jury",
+          "kind": "function",
+          "signature": "def spawn_jury(frame: Frame, settings: Settings) -> list[Juror]",
+          "doc": "Build the juror panel for one question.",
+          "lineno": 31,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Juror",
+            "_slug",
+            "add",
+            "append",
+            "build_client",
+            "enumerate",
+            "len",
+            "list",
+            "lower",
+            "max",
+            "set",
+            "strip"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "_slug",
+          "kind": "function",
+          "signature": "def _slug(text: str) -> str",
+          "doc": "",
+          "lineno": 69,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "isalnum",
+            "join",
+            "lower",
+            "strip"
+          ],
+          "is_public": false
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/agents/synthesizer.py",
+      "module": "aijury.agents.synthesizer",
+      "phase": "Phase 3 \u2014 agent roles & dynamic spawning",
+      "doc": "Synthesizer: turns a deliberation into a Verdict.",
+      "loc": 167,
+      "imports": [
+        "__future__",
+        "aijury.agents.base",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "aijury.core.termination"
+      ],
+      "internal_deps": [
+        "aijury.agents.base",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "aijury.core.termination"
+      ],
+      "symbols": [
+        {
+          "name": "Synthesizer",
+          "kind": "class",
+          "signature": "class Synthesizer(Agent)",
+          "doc": "",
+          "lineno": 38,
+          "decorators": [],
+          "bases": [
+            "Agent"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Synthesizer.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, client, **kwargs) -> None",
+          "doc": "",
+          "lineno": 41,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "__init__",
+            "super"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Synthesizer.persona",
+          "kind": "method",
+          "signature": "def persona(self) -> str",
+          "doc": "",
+          "lineno": 44,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Synthesizer.synthesize",
+          "kind": "method",
+          "signature": "async def synthesize(self, ctx: AgentContext, question: str, stop_reason: StopReason, agreement: float) -> Verdict",
+          "doc": "",
+          "lineno": 47,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_finalize",
+            "ask",
+            "failed_claims",
+            "join",
+            "open_cruxes",
+            "transcript",
+            "values"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Synthesizer._finalize",
+          "kind": "method",
+          "signature": "def _finalize(self, verdict: Verdict, ctx: AgentContext, question: str, qtype: QuestionType, stop_reason: StopReason, agreement: float) -> Verdict",
+          "doc": "Apply the outcome policy deterministically.",
+          "lineno": 76,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Dissent",
+            "authors",
+            "current_positions",
+            "event",
+            "failed_claims",
+            "len",
+            "min",
+            "open_cruxes",
+            "round",
+            "sorted",
+            "sum",
+            "values"
+          ],
+          "is_public": false
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/agents/verifier.py",
+      "module": "aijury.agents.verifier",
+      "phase": "Phase 3 \u2014 agent roles & dynamic spawning",
+      "doc": "Verifier: checks claims with tools, not with opinion.",
+      "loc": 111,
+      "imports": [
+        "__future__",
+        "aijury.agents.base",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.verification.registry",
+        "pydantic"
+      ],
+      "internal_deps": [
+        "aijury.agents.base",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.verification.registry"
+      ],
+      "symbols": [
+        {
+          "name": "ClaimJudgement",
+          "kind": "class",
+          "signature": "class ClaimJudgement(BaseModel)",
+          "doc": "",
+          "lineno": 18,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "VerificationReport",
+          "kind": "class",
+          "signature": "class VerificationReport(BaseModel)",
+          "doc": "",
+          "lineno": 24,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Verifier",
+          "kind": "class",
+          "signature": "class Verifier(Agent)",
+          "doc": "",
+          "lineno": 43,
+          "decorators": [],
+          "bases": [
+            "Agent"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Verifier.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, client, **kwargs) -> None",
+          "doc": "",
+          "lineno": 46,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "__init__",
+            "super"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Verifier.persona",
+          "kind": "method",
+          "signature": "def persona(self) -> str",
+          "doc": "",
+          "lineno": 49,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Verifier.verify",
+          "kind": "method",
+          "signature": "async def verify(self, ctx: AgentContext) -> VerificationReport",
+          "doc": "",
+          "lineno": 52,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "ClaimJudgement",
+            "VerificationReport",
+            "ask",
+            "event",
+            "extend",
+            "get",
+            "join",
+            "len",
+            "run_verifiers",
+            "sum",
+            "unverified_claims",
+            "values"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/api/__init__.py",
+      "module": "aijury.api.__init__",
+      "phase": "Phase 7 \u2014 HTTP API & web console",
+      "doc": "",
+      "loc": 3,
+      "imports": [
+        "aijury.api.server"
+      ],
+      "internal_deps": [
+        "aijury.api.server"
+      ],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/api/schemas.py",
+      "module": "aijury.api.schemas",
+      "phase": "Phase 7 \u2014 HTTP API & web console",
+      "doc": "Request and response models for the HTTP API.",
+      "loc": 78,
+      "imports": [
+        "__future__",
+        "aijury.contracts.verdict",
+        "pydantic"
+      ],
+      "internal_deps": [
+        "aijury.contracts.verdict"
+      ],
+      "symbols": [
+        {
+          "name": "AskRequest",
+          "kind": "class",
+          "signature": "class AskRequest(BaseModel)",
+          "doc": "",
+          "lineno": 14,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "ClaimView",
+          "kind": "class",
+          "signature": "class ClaimView(BaseModel)",
+          "doc": "",
+          "lineno": 22,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "PositionView",
+          "kind": "class",
+          "signature": "class PositionView(BaseModel)",
+          "doc": "",
+          "lineno": 30,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "CruxView",
+          "kind": "class",
+          "signature": "class CruxView(BaseModel)",
+          "doc": "",
+          "lineno": 41,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "DeliberationView",
+          "kind": "class",
+          "signature": "class DeliberationView(BaseModel)",
+          "doc": "The full record. Distinct from the Verdict on purpose.",
+          "lineno": 48,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "HealthResponse",
+          "kind": "class",
+          "signature": "class HealthResponse(BaseModel)",
+          "doc": "",
+          "lineno": 72,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/api/server.py",
+      "module": "aijury.api.server",
+      "phase": "Phase 7 \u2014 HTTP API & web console",
+      "doc": "HTTP API and static UI host.",
+      "loc": 222,
+      "imports": [
+        "__future__",
+        "aijury",
+        "aijury.api.schemas",
+        "aijury.config",
+        "aijury.core.errors",
+        "aijury.core.tracing",
+        "aijury.learning.injector",
+        "aijury.protocol.deliberation",
+        "asyncio",
+        "dataclasses",
+        "fastapi",
+        "fastapi.middleware.cors",
+        "fastapi.responses",
+        "json",
+        "pathlib",
+        "typing"
+      ],
+      "internal_deps": [
+        "aijury",
+        "aijury.api.schemas",
+        "aijury.config",
+        "aijury.core.errors",
+        "aijury.core.tracing",
+        "aijury.learning.injector",
+        "aijury.protocol.deliberation"
+      ],
+      "symbols": [
+        {
+          "name": "_settings_for",
+          "kind": "function",
+          "signature": "def _settings_for(request: AskRequest, base: Settings) -> Settings",
+          "doc": "",
+          "lineno": 57,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "replace"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_to_view",
+          "kind": "function",
+          "signature": "def _to_view(result: DeliberationResult) -> DeliberationView",
+          "doc": "",
+          "lineno": 68,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "ClaimView",
+            "CruxView",
+            "DeliberationView",
+            "PositionView",
+            "len",
+            "round",
+            "snapshot",
+            "values"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "create_app",
+          "kind": "function",
+          "signature": "def create_app(settings: Settings | None=None) -> FastAPI",
+          "doc": "",
+          "lineno": 118,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "AskRequest",
+            "Deliberation",
+            "FastAPI",
+            "FileResponse",
+            "HTTPException",
+            "HealthResponse",
+            "Query",
+            "StreamingResponse",
+            "_run_streaming",
+            "_settings_for",
+            "_to_view",
+            "add_middleware",
+            "from_env",
+            "get",
+            "len",
+            "load_lessons",
+            "post",
+            "run",
+            "str"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "_sse",
+          "kind": "function",
+          "signature": "def _sse(event: str, payload: Any) -> str",
+          "doc": "",
+          "lineno": 172,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "dumps"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_run_streaming",
+          "kind": "async_function",
+          "signature": "async def _run_streaming(request: AskRequest, base: Settings) -> AsyncIterator[str]",
+          "doc": "Bridge tracer spans into an SSE stream.",
+          "lineno": 176,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Deliberation",
+            "Queue",
+            "_settings_for",
+            "_sse",
+            "_to_view",
+            "call_soon_threadsafe",
+            "cancel",
+            "create_task",
+            "done",
+            "get",
+            "get_running_loop",
+            "load_lessons",
+            "model_dump",
+            "put_nowait",
+            "round",
+            "run",
+            "str",
+            "type"
+          ],
+          "is_public": false
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/baseline.py",
+      "module": "aijury.baseline",
+      "phase": "Phase 1 \u2014 single-agent baseline (control arm)",
+      "doc": "Phase 1: single-agent baseline.",
+      "loc": 50,
+      "imports": [
+        "__future__",
+        "aijury.config",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "aijury.core.budget",
+        "aijury.core.tracing",
+        "aijury.llm.base",
+        "aijury.llm.registry",
+        "aijury.security.injection"
+      ],
+      "internal_deps": [
+        "aijury.config",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "aijury.core.budget",
+        "aijury.core.tracing",
+        "aijury.llm.base",
+        "aijury.llm.registry",
+        "aijury.security.injection"
+      ],
+      "symbols": [
+        {
+          "name": "answer_baseline",
+          "kind": "async_function",
+          "signature": "async def answer_baseline(question: str, settings: Settings) -> Verdict",
+          "doc": "",
+          "lineno": 27,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "BudgetLedger",
+            "Tracer",
+            "build_client",
+            "complete_structured",
+            "export",
+            "record",
+            "round",
+            "screen_input",
+            "span"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/cli.py",
+      "module": "aijury.cli",
+      "phase": "Entry point",
+      "doc": "Command line interface.",
+      "loc": 109,
+      "imports": [
+        "__future__",
+        "aijury.config",
+        "aijury.evaluation.harness",
+        "aijury.learning.failure_store",
+        "aijury.learning.lesson_extractor",
+        "aijury.pipeline",
+        "argparse",
+        "asyncio",
+        "json",
+        "sys"
+      ],
+      "internal_deps": [
+        "aijury.config",
+        "aijury.evaluation.harness",
+        "aijury.learning.failure_store",
+        "aijury.learning.lesson_extractor",
+        "aijury.pipeline"
+      ],
+      "symbols": [
+        {
+          "name": "_ask",
+          "kind": "async_function",
+          "signature": "async def _ask(question: str, *, show_trace: bool, as_json: bool) -> int",
+          "doc": "",
+          "lineno": 17,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "JuryPipeline",
+            "ask",
+            "dumps",
+            "from_env",
+            "model_dump_json",
+            "print",
+            "render",
+            "to_dict"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_eval",
+          "kind": "async_function",
+          "signature": "async def _eval(dataset: str, concurrency: int) -> int",
+          "doc": "",
+          "lineno": 36,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "from_env",
+            "load_dataset",
+            "print",
+            "render",
+            "run_eval"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_lessons",
+          "kind": "function",
+          "signature": "def _lessons() -> int",
+          "doc": "",
+          "lineno": 43,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "FailureStore",
+            "all",
+            "extract_lessons",
+            "failure_summary",
+            "from_env",
+            "items",
+            "len",
+            "print",
+            "save_lessons",
+            "sorted"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_serve",
+          "kind": "function",
+          "signature": "def _serve(host: str, port: int, reload: bool) -> int",
+          "doc": "",
+          "lineno": 60,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "from_env",
+            "print",
+            "run"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "main",
+          "kind": "function",
+          "signature": "def main(argv: list[str] | None=None) -> int",
+          "doc": "",
+          "lineno": 76,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "ArgumentParser",
+            "_ask",
+            "_eval",
+            "_lessons",
+            "_serve",
+            "add_argument",
+            "add_parser",
+            "add_subparsers",
+            "parse_args",
+            "run"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/config.py",
+      "module": "aijury.config",
+      "phase": "Cross-cutting \u2014 configuration",
+      "doc": "Central configuration. Everything tunable lives here, sourced from env.",
+      "loc": 121,
+      "imports": [
+        "__future__",
+        "dataclasses",
+        "os",
+        "pathlib"
+      ],
+      "internal_deps": [],
+      "symbols": [
+        {
+          "name": "load_dotenv",
+          "kind": "function",
+          "signature": "def load_dotenv(path: str | Path | None=None, *, override: bool=False) -> dict[str, str]",
+          "doc": "Load a .env file into os.environ.",
+          "lineno": 14,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Path",
+            "cwd",
+            "is_file",
+            "len",
+            "partition",
+            "read_text",
+            "removeprefix",
+            "resolve",
+            "splitlines",
+            "startswith",
+            "strip"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "_int",
+          "kind": "function",
+          "signature": "def _int(key: str, default: int) -> int",
+          "doc": "",
+          "lineno": 56,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "get",
+            "int"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_float",
+          "kind": "function",
+          "signature": "def _float(key: str, default: float) -> float",
+          "doc": "",
+          "lineno": 61,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "float",
+            "get"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Budget",
+          "kind": "class",
+          "signature": "class Budget()",
+          "doc": "Hard ceilings. Exceeding any of these terminates deliberation immediately.",
+          "lineno": 67,
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Settings",
+          "kind": "class",
+          "signature": "class Settings()",
+          "doc": "",
+          "lineno": 78,
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Settings.from_env",
+          "kind": "method",
+          "signature": "def from_env(cls, *, dotenv: bool=True) -> Settings",
+          "doc": "Build settings from the environment, loading .env first if present.",
+          "lineno": 96,
+          "decorators": [
+            "classmethod"
+          ],
+          "bases": [],
+          "calls": [
+            "Budget",
+            "_float",
+            "_int",
+            "cls",
+            "get",
+            "load_dotenv",
+            "split",
+            "strip",
+            "tuple"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/contracts/__init__.py",
+      "module": "aijury.contracts.__init__",
+      "phase": "Phase 0 \u2014 contracts & schemas",
+      "doc": "",
+      "loc": 16,
+      "imports": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict"
+      ],
+      "internal_deps": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict"
+      ],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/contracts/messages.py",
+      "module": "aijury.contracts.messages",
+      "phase": "Phase 0 \u2014 contracts & schemas",
+      "doc": "Message and claim contracts written to the blackboard.",
+      "loc": 146,
+      "imports": [
+        "__future__",
+        "datetime",
+        "enum",
+        "hashlib",
+        "pydantic",
+        "uuid"
+      ],
+      "internal_deps": [],
+      "symbols": [
+        {
+          "name": "_now",
+          "kind": "function",
+          "signature": "def _now() -> datetime",
+          "doc": "",
+          "lineno": 18,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "now"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_uid",
+          "kind": "function",
+          "signature": "def _uid() -> str",
+          "doc": "",
+          "lineno": 22,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "uuid4"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Role",
+          "kind": "class",
+          "signature": "class Role(str, Enum)",
+          "doc": "",
+          "lineno": 26,
+          "decorators": [],
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Stance",
+          "kind": "class",
+          "signature": "class Stance(str, Enum)",
+          "doc": "",
+          "lineno": 36,
+          "decorators": [],
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "EvidenceKind",
+          "kind": "class",
+          "signature": "class EvidenceKind(str, Enum)",
+          "doc": "",
+          "lineno": 42,
+          "decorators": [],
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Evidence",
+          "kind": "class",
+          "signature": "class Evidence(BaseModel)",
+          "doc": "",
+          "lineno": 50,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Evidence.weight",
+          "kind": "method",
+          "signature": "def weight(self) -> float",
+          "doc": "Crude evidential weight. Unverified assertions must not outrank execution.",
+          "lineno": 62,
+          "decorators": [
+            "property"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Claim",
+          "kind": "class",
+          "signature": "class Claim(BaseModel)",
+          "doc": "An atomic, individually checkable assertion.",
+          "lineno": 74,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Claim.fingerprint",
+          "kind": "method",
+          "signature": "def fingerprint(self) -> str",
+          "doc": "Stable hash of claim text, used to detect repetition across rounds.",
+          "lineno": 87,
+          "decorators": [
+            "property"
+          ],
+          "bases": [],
+          "calls": [
+            "encode",
+            "hexdigest",
+            "lower",
+            "sha256",
+            "strip"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Claim.support",
+          "kind": "method",
+          "signature": "def support(self) -> float",
+          "doc": "",
+          "lineno": 92,
+          "decorators": [
+            "property"
+          ],
+          "bases": [],
+          "calls": [
+            "sum"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Position",
+          "kind": "class",
+          "signature": "class Position(BaseModel)",
+          "doc": "One agent's stance on the question at one point in the deliberation.",
+          "lineno": 96,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Position.fingerprint",
+          "kind": "method",
+          "signature": "def fingerprint(self) -> str",
+          "doc": "",
+          "lineno": 114,
+          "decorators": [
+            "property"
+          ],
+          "bases": [],
+          "calls": [
+            "encode",
+            "hexdigest",
+            "lower",
+            "sha256",
+            "strip"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "AgentMessage",
+          "kind": "class",
+          "signature": "class AgentMessage(BaseModel)",
+          "doc": "Anything an agent says. Append-only record on the blackboard.",
+          "lineno": 118,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Crux",
+          "kind": "class",
+          "signature": "class Crux(BaseModel)",
+          "doc": "A specific disagreement isolated by the Moderator.",
+          "lineno": 133,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/contracts/taxonomy.py",
+      "module": "aijury.contracts.taxonomy",
+      "phase": "Phase 0 \u2014 contracts & schemas",
+      "doc": "Question taxonomy. Classification drives jury composition and verification.",
+      "loc": 68,
+      "imports": [
+        "__future__",
+        "enum",
+        "pydantic"
+      ],
+      "internal_deps": [],
+      "symbols": [
+        {
+          "name": "QuestionType",
+          "kind": "class",
+          "signature": "class QuestionType(str, Enum)",
+          "doc": "How a question can be settled determines how we should argue about it.",
+          "lineno": 10,
+          "decorators": [],
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "VerificationMethod",
+          "kind": "class",
+          "signature": "class VerificationMethod(str, Enum)",
+          "doc": "",
+          "lineno": 19,
+          "decorators": [],
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "VERIFICATION_MATRIX",
+          "kind": "constant",
+          "signature": "VERIFICATION_MATRIX: dict[QuestionType, tuple[VerificationMethod, ...]]",
+          "doc": "",
+          "lineno": 30,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Frame",
+          "kind": "class",
+          "signature": "class Frame(BaseModel)",
+          "doc": "Output of the Intake/Framer agent: the case file before anyone argues.",
+          "lineno": 48,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Frame.is_grey",
+          "kind": "method",
+          "signature": "def is_grey(self) -> bool",
+          "doc": "",
+          "lineno": 67,
+          "decorators": [
+            "property"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/contracts/verdict.py",
+      "module": "aijury.contracts.verdict",
+      "phase": "Phase 0 \u2014 contracts & schemas",
+      "doc": "The Verdict: the only object the outside world sees.",
+      "loc": 106,
+      "imports": [
+        "__future__",
+        "aijury.contracts.taxonomy",
+        "datetime",
+        "enum",
+        "pydantic"
+      ],
+      "internal_deps": [
+        "aijury.contracts.taxonomy"
+      ],
+      "symbols": [
+        {
+          "name": "Outcome",
+          "kind": "class",
+          "signature": "class Outcome(str, Enum)",
+          "doc": "",
+          "lineno": 18,
+          "decorators": [],
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Dissent",
+          "kind": "class",
+          "signature": "class Dissent(BaseModel)",
+          "doc": "",
+          "lineno": 26,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "SupportedConclusion",
+          "kind": "class",
+          "signature": "class SupportedConclusion(BaseModel)",
+          "doc": "",
+          "lineno": 33,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Verdict",
+          "kind": "class",
+          "signature": "class Verdict(BaseModel)",
+          "doc": "",
+          "lineno": 39,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Verdict._grey_areas_must_map_the_disagreement",
+          "kind": "method",
+          "signature": "def _grey_areas_must_map_the_disagreement(self) -> Verdict",
+          "doc": "A grey-area verdict that asserts a clean answer is a bug, not a result.",
+          "lineno": 65,
+          "decorators": [
+            "model_validator(mode='after')"
+          ],
+          "bases": [],
+          "calls": [
+            "ValueError",
+            "model_validator"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Verdict.render",
+          "kind": "method",
+          "signature": "def render(self) -> str",
+          "doc": "Human-facing text. Results only.",
+          "lineno": 81,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "append",
+            "join",
+            "len",
+            "strip"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/core/__init__.py",
+      "module": "aijury.core.__init__",
+      "phase": "Phase 2 \u2014 orchestration core",
+      "doc": "",
+      "loc": 17,
+      "imports": [
+        "aijury.core.blackboard",
+        "aijury.core.budget",
+        "aijury.core.errors",
+        "aijury.core.termination",
+        "aijury.core.tracing"
+      ],
+      "internal_deps": [
+        "aijury.core.blackboard",
+        "aijury.core.budget",
+        "aijury.core.errors",
+        "aijury.core.termination",
+        "aijury.core.tracing"
+      ],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/core/blackboard.py",
+      "module": "aijury.core.blackboard",
+      "phase": "Phase 2 \u2014 orchestration core",
+      "doc": "Shared, append-only case file.",
+      "loc": 130,
+      "imports": [
+        "__future__",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "collections",
+        "dataclasses"
+      ],
+      "internal_deps": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy"
+      ],
+      "symbols": [
+        {
+          "name": "Blackboard",
+          "kind": "class",
+          "signature": "class Blackboard()",
+          "doc": "",
+          "lineno": 18,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.post",
+          "kind": "method",
+          "signature": "def post(self, message: AgentMessage) -> None",
+          "doc": "",
+          "lineno": 32,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "append"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.submit",
+          "kind": "method",
+          "signature": "def submit(self, position: Position) -> None",
+          "doc": "Record a position and log any belief change against the author's last one.",
+          "lineno": 35,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "append",
+            "latest_position"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.silence",
+          "kind": "method",
+          "signature": "def silence(self, author: str) -> None",
+          "doc": "Eject an agent from the live discussion without rewriting history.",
+          "lineno": 53,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "add"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.add_crux",
+          "kind": "method",
+          "signature": "def add_crux(self, crux: Crux) -> None",
+          "doc": "",
+          "lineno": 57,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "append"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.resolve_crux",
+          "kind": "method",
+          "signature": "def resolve_crux(self, crux_id: str, resolution: str) -> None",
+          "doc": "",
+          "lineno": 60,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.latest_position",
+          "kind": "method",
+          "signature": "def latest_position(self, author: str) -> Position | None",
+          "doc": "",
+          "lineno": 68,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "reversed"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.positions_in_round",
+          "kind": "method",
+          "signature": "def positions_in_round(self, round_index: int) -> list[Position]",
+          "doc": "",
+          "lineno": 74,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.current_positions",
+          "kind": "method",
+          "signature": "def current_positions(self) -> list[Position]",
+          "doc": "One position per author still in the discussion: their most recent.",
+          "lineno": 77,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "list",
+            "values"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.open_cruxes",
+          "kind": "method",
+          "signature": "def open_cruxes(self) -> list[Crux]",
+          "doc": "",
+          "lineno": 86,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.unverified_claims",
+          "kind": "method",
+          "signature": "def unverified_claims(self) -> list[Claim]",
+          "doc": "",
+          "lineno": 89,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "values"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.failed_claims",
+          "kind": "method",
+          "signature": "def failed_claims(self) -> list[Claim]",
+          "doc": "",
+          "lineno": 96,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "values"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.authors",
+          "kind": "method",
+          "signature": "def authors(self) -> list[str]",
+          "doc": "",
+          "lineno": 103,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "sorted"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.claim_repetition",
+          "kind": "method",
+          "signature": "def claim_repetition(self) -> dict[str, int]",
+          "doc": "How often each distinct claim has been restated. High counts signal an",
+          "lineno": 106,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "defaultdict",
+            "dict",
+            "values"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Blackboard.transcript",
+          "kind": "method",
+          "signature": "def transcript(self, *, anonymized: bool=False) -> str",
+          "doc": "Render positions for agent consumption.",
+          "lineno": 114,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "append",
+            "current_positions",
+            "enumerate",
+            "join"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/core/budget.py",
+      "module": "aijury.core.budget",
+      "phase": "Phase 2 \u2014 orchestration core",
+      "doc": "Cost, call, and time ceilings.",
+      "loc": 75,
+      "imports": [
+        "__future__",
+        "aijury.config",
+        "aijury.core.errors",
+        "dataclasses",
+        "time"
+      ],
+      "internal_deps": [
+        "aijury.config",
+        "aijury.core.errors"
+      ],
+      "symbols": [
+        {
+          "name": "BudgetExceeded",
+          "kind": "class",
+          "signature": "class BudgetExceeded(AIJuryError)",
+          "doc": "",
+          "lineno": 17,
+          "decorators": [],
+          "bases": [
+            "AIJuryError"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "BudgetExceeded.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, resource: str, used: float, limit: float) -> None",
+          "doc": "",
+          "lineno": 18,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "__init__",
+            "super"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "BudgetLedger",
+          "kind": "class",
+          "signature": "class BudgetLedger()",
+          "doc": "",
+          "lineno": 26,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "BudgetLedger.tokens",
+          "kind": "method",
+          "signature": "def tokens(self) -> int",
+          "doc": "",
+          "lineno": 35,
+          "decorators": [
+            "property"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "BudgetLedger.elapsed",
+          "kind": "method",
+          "signature": "def elapsed(self) -> float",
+          "doc": "",
+          "lineno": 39,
+          "decorators": [
+            "property"
+          ],
+          "bases": [],
+          "calls": [
+            "perf_counter"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "BudgetLedger.record",
+          "kind": "method",
+          "signature": "def record(self, agent: str, tokens_in: int, tokens_out: int) -> None",
+          "doc": "",
+          "lineno": 42,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "get"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "BudgetLedger.exhausted",
+          "kind": "method",
+          "signature": "def exhausted(self) -> str | None",
+          "doc": "Return the name of the exhausted resource, or None.",
+          "lineno": 48,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "BudgetLedger.check",
+          "kind": "method",
+          "signature": "def check(self) -> None",
+          "doc": "",
+          "lineno": 58,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "BudgetExceeded",
+            "exhausted"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "BudgetLedger.snapshot",
+          "kind": "method",
+          "signature": "def snapshot(self) -> dict[str, float]",
+          "doc": "",
+          "lineno": 69,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "round"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/core/errors.py",
+      "module": "aijury.core.errors",
+      "phase": "Phase 2 \u2014 orchestration core",
+      "doc": "Error taxonomy. Distinguishes our failures from the model's.",
+      "loc": 19,
+      "imports": [
+        "__future__"
+      ],
+      "internal_deps": [],
+      "symbols": [
+        {
+          "name": "AIJuryError",
+          "kind": "class",
+          "signature": "class AIJuryError(Exception)",
+          "doc": "Base for everything this system raises deliberately.",
+          "lineno": 6,
+          "decorators": [],
+          "bases": [
+            "Exception"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "DeliberationError",
+          "kind": "class",
+          "signature": "class DeliberationError(AIJuryError)",
+          "doc": "Orchestration could not proceed.",
+          "lineno": 10,
+          "decorators": [],
+          "bases": [
+            "AIJuryError"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "VerificationError",
+          "kind": "class",
+          "signature": "class VerificationError(AIJuryError)",
+          "doc": "A verifier could not run, as distinct from a claim failing verification.",
+          "lineno": 14,
+          "decorators": [],
+          "bases": [
+            "AIJuryError"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "UnsafeInputError",
+          "kind": "class",
+          "signature": "class UnsafeInputError(AIJuryError)",
+          "doc": "Input rejected by the security layer before reaching any agent.",
+          "lineno": 18,
+          "decorators": [],
+          "bases": [
+            "AIJuryError"
+          ],
+          "calls": [],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/core/termination.py",
+      "module": "aijury.core.termination",
+      "phase": "Phase 2 \u2014 orchestration core",
+      "doc": "When to stop arguing.",
+      "loc": 118,
+      "imports": [
+        "__future__",
+        "aijury.config",
+        "aijury.core.blackboard",
+        "aijury.core.budget",
+        "dataclasses",
+        "difflib",
+        "enum"
+      ],
+      "internal_deps": [
+        "aijury.config",
+        "aijury.core.blackboard",
+        "aijury.core.budget"
+      ],
+      "symbols": [
+        {
+          "name": "StopReason",
+          "kind": "class",
+          "signature": "class StopReason(str, Enum)",
+          "doc": "",
+          "lineno": 25,
+          "decorators": [],
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "TerminationDecision",
+          "kind": "class",
+          "signature": "class TerminationDecision()",
+          "doc": "",
+          "lineno": 34,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "_similarity",
+          "kind": "function",
+          "signature": "def _similarity(a: str, b: str) -> float",
+          "doc": "",
+          "lineno": 41,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "SequenceMatcher",
+            "lower",
+            "ratio",
+            "strip"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "agreement_score",
+          "kind": "function",
+          "signature": "def agreement_score(blackboard: Blackboard) -> float",
+          "doc": "Mean pairwise similarity of current position summaries, in [0, 1].",
+          "lineno": 45,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_similarity",
+            "current_positions",
+            "enumerate",
+            "len",
+            "sum"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "TerminationController",
+          "kind": "class",
+          "signature": "class TerminationController()",
+          "doc": "",
+          "lineno": 63,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "TerminationController.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, settings: Settings) -> None",
+          "doc": "",
+          "lineno": 64,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "TerminationController.evaluate",
+          "kind": "method",
+          "signature": "def evaluate(self, blackboard: Blackboard, ledger: BudgetLedger, round_index: int) -> TerminationDecision",
+          "doc": "",
+          "lineno": 69,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "TerminationDecision",
+            "_claims_repeating",
+            "agreement_score",
+            "any",
+            "append",
+            "exhausted",
+            "failed_claims",
+            "len",
+            "max",
+            "min",
+            "open_cruxes",
+            "positions_in_round"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "TerminationController._claims_repeating",
+          "kind": "method",
+          "signature": "def _claims_repeating(blackboard: Blackboard, threshold: int=3) -> bool",
+          "doc": "",
+          "lineno": 116,
+          "decorators": [
+            "staticmethod"
+          ],
+          "bases": [],
+          "calls": [
+            "any",
+            "claim_repetition",
+            "values"
+          ],
+          "is_public": false
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/core/tracing.py",
+      "module": "aijury.core.tracing",
+      "phase": "Phase 2 \u2014 orchestration core",
+      "doc": "Structured tracing.",
+      "loc": 111,
+      "imports": [
+        "__future__",
+        "collections.abc",
+        "contextlib",
+        "dataclasses",
+        "datetime",
+        "json",
+        "os",
+        "time",
+        "typing",
+        "uuid"
+      ],
+      "internal_deps": [],
+      "symbols": [
+        {
+          "name": "Span",
+          "kind": "class",
+          "signature": "class Span()",
+          "doc": "",
+          "lineno": 22,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Tracer",
+          "kind": "class",
+          "signature": "class Tracer()",
+          "doc": "In-memory span collector with optional JSONL export.",
+          "lineno": 33,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Tracer.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, trace_id: str | None=None, *, trace_dir: str | None=None) -> None",
+          "doc": "",
+          "lineno": 40,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "uuid4"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Tracer.subscribe",
+          "kind": "method",
+          "signature": "def subscribe(self, listener: Callable[[Span], None]) -> Callable[[], None]",
+          "doc": "Register a live span listener. Returns an unsubscribe callable.",
+          "lineno": 47,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "append",
+            "remove"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Tracer._emit",
+          "kind": "method",
+          "signature": "def _emit(self, span: Span) -> None",
+          "doc": "",
+          "lineno": 57,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "list",
+            "listener",
+            "remove"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Tracer.span",
+          "kind": "method",
+          "signature": "def span(self, name: str, kind: str='internal', **attributes: Any) -> Iterator[Span]",
+          "doc": "",
+          "lineno": 65,
+          "decorators": [
+            "contextmanager"
+          ],
+          "bases": [],
+          "calls": [
+            "Span",
+            "_emit",
+            "append",
+            "dict",
+            "isoformat",
+            "now",
+            "perf_counter",
+            "pop",
+            "type",
+            "uuid4"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Tracer.event",
+          "kind": "method",
+          "signature": "def event(self, name: str, **attributes: Any) -> None",
+          "doc": "",
+          "lineno": 87,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Span",
+            "_emit",
+            "append",
+            "dict",
+            "isoformat",
+            "now",
+            "uuid4"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Tracer.export",
+          "kind": "method",
+          "signature": "def export(self) -> str | None",
+          "doc": "Write the trace to disk. Returns the path, or None if tracing to memory only.",
+          "lineno": 99,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "asdict",
+            "dumps",
+            "join",
+            "makedirs",
+            "open",
+            "write"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Tracer.to_dict",
+          "kind": "method",
+          "signature": "def to_dict(self) -> dict[str, Any]",
+          "doc": "",
+          "lineno": 110,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "asdict"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/evaluation/__init__.py",
+      "module": "aijury.evaluation.__init__",
+      "phase": "Phase 0 \u2014 evaluation harness & scorer",
+      "doc": "",
+      "loc": 4,
+      "imports": [
+        "aijury.evaluation.harness",
+        "aijury.evaluation.scorer"
+      ],
+      "internal_deps": [
+        "aijury.evaluation.harness",
+        "aijury.evaluation.scorer"
+      ],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/evaluation/datasets/__init__.py",
+      "module": "aijury.evaluation.datasets.__init__",
+      "phase": "Phase 0 \u2014 evaluation harness & scorer",
+      "doc": "",
+      "loc": 0,
+      "imports": [],
+      "internal_deps": [],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/evaluation/harness.py",
+      "module": "aijury.evaluation.harness",
+      "phase": "Phase 0 \u2014 evaluation harness & scorer",
+      "doc": "Eval harness. Runs jury and baseline over the golden set and compares them.",
+      "loc": 174,
+      "imports": [
+        "__future__",
+        "aijury.baseline",
+        "aijury.config",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "aijury.evaluation.scorer",
+        "aijury.pipeline",
+        "asyncio",
+        "dataclasses",
+        "json",
+        "pathlib"
+      ],
+      "internal_deps": [
+        "aijury.baseline",
+        "aijury.config",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "aijury.evaluation.scorer",
+        "aijury.pipeline"
+      ],
+      "symbols": [
+        {
+          "name": "EvalCase",
+          "kind": "class",
+          "signature": "class EvalCase()",
+          "doc": "",
+          "lineno": 24,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "ArmSummary",
+          "kind": "class",
+          "signature": "class ArmSummary()",
+          "doc": "",
+          "lineno": 34,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "ArmSummary.as_row",
+          "kind": "method",
+          "signature": "def as_row(self) -> str",
+          "doc": "",
+          "lineno": 45,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "EvalReport",
+          "kind": "class",
+          "signature": "class EvalReport()",
+          "doc": "",
+          "lineno": 55,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "EvalReport.jury_beats_baseline",
+          "kind": "method",
+          "signature": "def jury_beats_baseline(self) -> bool",
+          "doc": "The ship gate. Accuracy must improve without calibration regressing.",
+          "lineno": 61,
+          "decorators": [
+            "property"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "EvalReport.render",
+          "kind": "method",
+          "signature": "def render(self) -> str",
+          "doc": "",
+          "lineno": 69,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "as_row",
+            "join",
+            "max"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "load_dataset",
+          "kind": "function",
+          "signature": "def load_dataset(path: str | Path) -> list[EvalCase]",
+          "doc": "",
+          "lineno": 83,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "EvalCase",
+            "QuestionType",
+            "append",
+            "get",
+            "loads",
+            "open",
+            "strip"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "_summarize",
+          "kind": "function",
+          "signature": "def _summarize(name: str, scored: list[tuple[Score, Verdict]]) -> ArmSummary",
+          "doc": "",
+          "lineno": 103,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "ArmSummary",
+            "expected_calibration_error",
+            "len",
+            "max",
+            "sum"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "run_eval",
+          "kind": "async_function",
+          "signature": "async def run_eval(cases: list[EvalCase], settings: Settings, *, concurrency: int=4, include_baseline: bool=True) -> EvalReport",
+          "doc": "",
+          "lineno": 118,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "EvalReport",
+            "JuryPipeline",
+            "Semaphore",
+            "_summarize",
+            "answer_baseline",
+            "append",
+            "ask",
+            "gather",
+            "one",
+            "score_verdict",
+            "sorted",
+            "str"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/evaluation/scorer.py",
+      "module": "aijury.evaluation.scorer",
+      "phase": "Phase 0 \u2014 evaluation harness & scorer",
+      "doc": "Scoring. Built before the system, per Phase 0.",
+      "loc": 100,
+      "imports": [
+        "__future__",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "dataclasses",
+        "difflib"
+      ],
+      "internal_deps": [
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict"
+      ],
+      "symbols": [
+        {
+          "name": "Score",
+          "kind": "class",
+          "signature": "class Score()",
+          "doc": "",
+          "lineno": 24,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "score_verdict",
+          "kind": "function",
+          "signature": "def score_verdict(verdict: Verdict, *, expected_answer: str, expected_type: QuestionType | None=None, acceptable: list[str] | None=None, threshold: float=0.55) -> Score",
+          "doc": "",
+          "lineno": 33,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Score",
+            "SequenceMatcher",
+            "any",
+            "append",
+            "join",
+            "lower",
+            "max",
+            "ratio",
+            "strip"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "expected_calibration_error",
+          "kind": "function",
+          "signature": "def expected_calibration_error(pairs: list[tuple[float, bool]], *, bins: int=10) -> float",
+          "doc": "ECE: mean gap between stated confidence and observed accuracy, per bin.",
+          "lineno": 77,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "abs",
+            "len",
+            "range",
+            "sum"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/learning/__init__.py",
+      "module": "aijury.learning.__init__",
+      "phase": "Phase 6 \u2014 learning loop",
+      "doc": "",
+      "loc": 5,
+      "imports": [
+        "aijury.learning.failure_store",
+        "aijury.learning.injector",
+        "aijury.learning.lesson_extractor"
+      ],
+      "internal_deps": [
+        "aijury.learning.failure_store",
+        "aijury.learning.injector",
+        "aijury.learning.lesson_extractor"
+      ],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/learning/failure_store.py",
+      "module": "aijury.learning.failure_store",
+      "phase": "Phase 6 \u2014 learning loop",
+      "doc": "Phase 6a: the failure store.",
+      "loc": 97,
+      "imports": [
+        "__future__",
+        "aijury.config",
+        "aijury.protocol.deliberation",
+        "dataclasses",
+        "datetime",
+        "json",
+        "os",
+        "uuid"
+      ],
+      "internal_deps": [
+        "aijury.config",
+        "aijury.protocol.deliberation"
+      ],
+      "symbols": [
+        {
+          "name": "FailureRecord",
+          "kind": "class",
+          "signature": "class FailureRecord()",
+          "doc": "",
+          "lineno": 26,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "FailureStore",
+          "kind": "class",
+          "signature": "class FailureStore()",
+          "doc": "Append-only JSONL store. Swap for Postgres in production; the interface holds.",
+          "lineno": 46,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "FailureStore.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, settings: Settings) -> None",
+          "doc": "",
+          "lineno": 49,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "join"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "FailureStore.record",
+          "kind": "method",
+          "signature": "def record(self, record: FailureRecord) -> None",
+          "doc": "",
+          "lineno": 52,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "asdict",
+            "dirname",
+            "dumps",
+            "makedirs",
+            "open",
+            "write"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "FailureStore.all",
+          "kind": "method",
+          "signature": "def all(self) -> list[FailureRecord]",
+          "doc": "",
+          "lineno": 57,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "FailureRecord",
+            "append",
+            "exists",
+            "loads",
+            "open",
+            "strip"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "FailureStore.from_deliberation",
+          "kind": "method",
+          "signature": "def from_deliberation(result: DeliberationResult, *, expected: str, signal: str) -> FailureRecord",
+          "doc": "",
+          "lineno": 68,
+          "decorators": [
+            "staticmethod"
+          ],
+          "bases": [],
+          "calls": [
+            "FailureRecord",
+            "bool",
+            "min",
+            "open_cruxes",
+            "uuid4",
+            "values"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/learning/injector.py",
+      "module": "aijury.learning.injector",
+      "phase": "Phase 6 \u2014 learning loop",
+      "doc": "Phase 6c: lesson injection.",
+      "loc": 38,
+      "imports": [
+        "__future__",
+        "aijury.config",
+        "aijury.learning.lesson_extractor",
+        "json",
+        "os"
+      ],
+      "internal_deps": [
+        "aijury.config",
+        "aijury.learning.lesson_extractor"
+      ],
+      "symbols": [
+        {
+          "name": "load_lessons",
+          "kind": "function",
+          "signature": "def load_lessons(settings: Settings, *, agent: str | None=None) -> list[str]",
+          "doc": "",
+          "lineno": 25,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Lesson",
+            "exists",
+            "join",
+            "load",
+            "open",
+            "sort"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/learning/lesson_extractor.py",
+      "module": "aijury.learning.lesson_extractor",
+      "phase": "Phase 6 \u2014 learning loop",
+      "doc": "Phase 6b: clustering failures into lessons.",
+      "loc": 121,
+      "imports": [
+        "__future__",
+        "aijury.config",
+        "aijury.learning.failure_store",
+        "collections",
+        "dataclasses",
+        "datetime",
+        "json",
+        "os"
+      ],
+      "internal_deps": [
+        "aijury.config",
+        "aijury.learning.failure_store"
+      ],
+      "symbols": [
+        {
+          "name": "Lesson",
+          "kind": "class",
+          "signature": "class Lesson()",
+          "doc": "",
+          "lineno": 25,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "extract_lessons",
+          "kind": "function",
+          "signature": "def extract_lessons(failures: list[FailureRecord], *, threshold: int=PROMOTION_THRESHOLD) -> list[Lesson]",
+          "doc": "Derive lessons from recurring, structurally-identified failure patterns.",
+          "lineno": 38,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Lesson",
+            "append",
+            "defaultdict",
+            "items",
+            "len"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "failure_summary",
+          "kind": "function",
+          "signature": "def failure_summary(failures: list[FailureRecord]) -> dict[str, int]",
+          "doc": "Where errors enter. Read this before tuning anything.",
+          "lineno": 111,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Counter",
+            "dict"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "save_lessons",
+          "kind": "function",
+          "signature": "def save_lessons(lessons: list[Lesson], settings: Settings) -> str",
+          "doc": "",
+          "lineno": 116,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "asdict",
+            "dump",
+            "join",
+            "makedirs",
+            "open"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/llm/__init__.py",
+      "module": "aijury.llm.__init__",
+      "phase": "Phase 2 \u2014 provider abstraction",
+      "doc": "",
+      "loc": 4,
+      "imports": [
+        "aijury.llm.base",
+        "aijury.llm.registry"
+      ],
+      "internal_deps": [
+        "aijury.llm.base",
+        "aijury.llm.registry"
+      ],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/llm/anthropic_client.py",
+      "module": "aijury.llm.anthropic_client",
+      "phase": "Phase 2 \u2014 provider abstraction",
+      "doc": "Anthropic-backed client.",
+      "loc": 74,
+      "imports": [
+        "__future__",
+        "aijury.llm.base",
+        "asyncio",
+        "os",
+        "time"
+      ],
+      "internal_deps": [
+        "aijury.llm.base"
+      ],
+      "symbols": [
+        {
+          "name": "AnthropicClient",
+          "kind": "class",
+          "signature": "class AnthropicClient()",
+          "doc": "",
+          "lineno": 16,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "AnthropicClient.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, model: str, *, api_key: str | None=None, max_retries: int=4, timeout: float=120.0) -> None",
+          "doc": "",
+          "lineno": 17,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "AsyncAnthropic",
+            "RuntimeError",
+            "get"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "AnthropicClient.complete",
+          "kind": "method",
+          "signature": "async def complete(self, system: str, prompt: str, *, max_tokens: int=2000, temperature: float=0.7) -> LLMResponse",
+          "doc": "",
+          "lineno": 40,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "LLMResponse",
+            "RuntimeError",
+            "create",
+            "getattr",
+            "join",
+            "perf_counter",
+            "range",
+            "sleep"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/llm/base.py",
+      "module": "aijury.llm.base",
+      "phase": "Phase 2 \u2014 provider abstraction",
+      "doc": "Provider-agnostic LLM interface.",
+      "loc": 132,
+      "imports": [
+        "__future__",
+        "dataclasses",
+        "json",
+        "pydantic",
+        "re",
+        "typing"
+      ],
+      "internal_deps": [],
+      "symbols": [
+        {
+          "name": "StructuredParseError",
+          "kind": "class",
+          "signature": "class StructuredParseError(RuntimeError)",
+          "doc": "Raised when a model's output cannot be coerced into the requested schema.",
+          "lineno": 19,
+          "decorators": [],
+          "bases": [
+            "RuntimeError"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "LLMResponse",
+          "kind": "class",
+          "signature": "class LLMResponse()",
+          "doc": "",
+          "lineno": 24,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "LLMClient",
+          "kind": "class",
+          "signature": "class LLMClient(Protocol)",
+          "doc": "Minimal surface. Anything satisfying this can be a juror.",
+          "lineno": 34,
+          "decorators": [
+            "runtime_checkable"
+          ],
+          "bases": [
+            "Protocol"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "LLMClient.complete",
+          "kind": "method",
+          "signature": "async def complete(self, system: str, prompt: str, *, max_tokens: int=2000, temperature: float=0.7) -> LLMResponse",
+          "doc": "",
+          "lineno": 39,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "extract_json",
+          "kind": "function",
+          "signature": "def extract_json(text: str) -> Any",
+          "doc": "Pull a JSON object out of model output, tolerating fences and preamble.",
+          "lineno": 52,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "StructuredParseError",
+            "enumerate",
+            "find",
+            "group",
+            "loads",
+            "search",
+            "str",
+            "strip"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "complete_structured",
+          "kind": "async_function",
+          "signature": "async def complete_structured(client: LLMClient, schema: type[T], system: str, prompt: str, *, max_tokens: int=2000, temperature: float=0.7, retries: int=2) -> tuple[T, LLMResponse]",
+          "doc": "Ask for JSON matching `schema`, repairing on failure.",
+          "lineno": 92,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "StructuredParseError",
+            "complete",
+            "dumps",
+            "extract_json",
+            "model_json_schema",
+            "model_validate",
+            "range",
+            "str"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/llm/mock.py",
+      "module": "aijury.llm.mock",
+      "phase": "Phase 2 \u2014 provider abstraction",
+      "doc": "Deterministic offline client.",
+      "loc": 134,
+      "imports": [
+        "__future__",
+        "aijury.llm.base",
+        "hashlib",
+        "json",
+        "random",
+        "time",
+        "typing"
+      ],
+      "internal_deps": [
+        "aijury.llm.base"
+      ],
+      "symbols": [
+        {
+          "name": "_seeded",
+          "kind": "function",
+          "signature": "def _seeded(*parts: str) -> random.Random",
+          "doc": "",
+          "lineno": 19,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Random",
+            "encode",
+            "hexdigest",
+            "int",
+            "join",
+            "sha256"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "MockLLMClient",
+          "kind": "class",
+          "signature": "class MockLLMClient()",
+          "doc": "Synthesises schema-shaped JSON from the schema embedded in the system prompt.",
+          "lineno": 24,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "MockLLMClient.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, model: str='mock-1', *, persona: str='neutral', seed: int=7) -> None",
+          "doc": "",
+          "lineno": 27,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "MockLLMClient.complete",
+          "kind": "method",
+          "signature": "async def complete(self, system: str, prompt: str, *, max_tokens: int=2000, temperature: float=0.7) -> LLMResponse",
+          "doc": "",
+          "lineno": 33,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "LLMResponse",
+            "_find_schema",
+            "_seeded",
+            "_synthesize",
+            "dumps",
+            "len",
+            "perf_counter",
+            "str"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "_find_schema",
+          "kind": "function",
+          "signature": "def _find_schema(system: str) -> dict[str, Any] | None",
+          "doc": "",
+          "lineno": 56,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "loads",
+            "split",
+            "strip"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_synthesize",
+          "kind": "function",
+          "signature": "def _synthesize(schema: dict[str, Any], rng: random.Random, persona: str, prompt: str) -> Any",
+          "doc": "",
+          "lineno": 83,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_build",
+            "get"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_build",
+          "kind": "function",
+          "signature": "def _build(node: dict[str, Any], defs: dict[str, Any], rng: random.Random, persona: str, prompt: str, depth: int) -> Any",
+          "doc": "",
+          "lineno": 90,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_build",
+            "get",
+            "items",
+            "max",
+            "min",
+            "randint",
+            "random",
+            "range",
+            "round",
+            "rsplit",
+            "set",
+            "strip",
+            "uniform"
+          ],
+          "is_public": false
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/llm/openai_client.py",
+      "module": "aijury.llm.openai_client",
+      "phase": "Phase 2 \u2014 provider abstraction",
+      "doc": "OpenAI-compatible chat client (HCNSEC and similar gateways).",
+      "loc": 83,
+      "imports": [
+        "__future__",
+        "aijury.llm.base",
+        "asyncio",
+        "time",
+        "typing"
+      ],
+      "internal_deps": [
+        "aijury.llm.base"
+      ],
+      "symbols": [
+        {
+          "name": "OpenAICompatClient",
+          "kind": "class",
+          "signature": "class OpenAICompatClient()",
+          "doc": "",
+          "lineno": 21,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "OpenAICompatClient.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, model: str, *, api_key: str, base_url: str, max_retries: int=4, timeout: float=120.0, client: Any | None=None) -> None",
+          "doc": "",
+          "lineno": 22,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "OpenAI",
+            "RuntimeError"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "OpenAICompatClient.complete",
+          "kind": "method",
+          "signature": "async def complete(self, system: str, prompt: str, *, max_tokens: int=2000, temperature: float=0.7) -> LLMResponse",
+          "doc": "",
+          "lineno": 46,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "LLMResponse",
+            "RuntimeError",
+            "getattr",
+            "int",
+            "perf_counter",
+            "range",
+            "sleep",
+            "to_thread"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/llm/registry.py",
+      "module": "aijury.llm.registry",
+      "phase": "Phase 2 \u2014 provider abstraction",
+      "doc": "Client construction and juror model assignment.",
+      "loc": 41,
+      "imports": [
+        "__future__",
+        "aijury.config",
+        "aijury.llm.base",
+        "aijury.llm.mock"
+      ],
+      "internal_deps": [
+        "aijury.config",
+        "aijury.llm.base",
+        "aijury.llm.mock"
+      ],
+      "symbols": [
+        {
+          "name": "build_client",
+          "kind": "function",
+          "signature": "def build_client(settings: Settings, *, persona: str='neutral', index: int=0) -> LLMClient",
+          "doc": "Return a client for one agent slot.",
+          "lineno": 10,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "AnthropicClient",
+            "MockLLMClient",
+            "OpenAICompatClient",
+            "ValueError",
+            "len"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/pipeline.py",
+      "module": "aijury.pipeline",
+      "phase": "Entry point",
+      "doc": "Top-level entry point.",
+      "loc": 47,
+      "imports": [
+        "__future__",
+        "aijury.baseline",
+        "aijury.config",
+        "aijury.contracts.verdict",
+        "aijury.learning.injector",
+        "aijury.protocol.deliberation",
+        "aijury.security.injection",
+        "dataclasses"
+      ],
+      "internal_deps": [
+        "aijury.baseline",
+        "aijury.config",
+        "aijury.contracts.verdict",
+        "aijury.learning.injector",
+        "aijury.protocol.deliberation",
+        "aijury.security.injection"
+      ],
+      "symbols": [
+        {
+          "name": "PipelineResult",
+          "kind": "class",
+          "signature": "class PipelineResult()",
+          "doc": "",
+          "lineno": 20,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "JuryPipeline",
+          "kind": "class",
+          "signature": "class JuryPipeline()",
+          "doc": "",
+          "lineno": 27,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "JuryPipeline.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, settings: Settings | None=None) -> None",
+          "doc": "",
+          "lineno": 28,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "from_env"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "JuryPipeline.ask",
+          "kind": "method",
+          "signature": "async def ask(self, question: str, *, use_lessons: bool=True) -> PipelineResult",
+          "doc": "",
+          "lineno": 31,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Deliberation",
+            "PipelineResult",
+            "answer_baseline",
+            "load_lessons",
+            "run",
+            "screen_input",
+            "type"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/protocol/__init__.py",
+      "module": "aijury.protocol.__init__",
+      "phase": "Phase 4 \u2014 deliberation protocol",
+      "doc": "",
+      "loc": 3,
+      "imports": [
+        "aijury.protocol.deliberation"
+      ],
+      "internal_deps": [
+        "aijury.protocol.deliberation"
+      ],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/protocol/deliberation.py",
+      "module": "aijury.protocol.deliberation",
+      "phase": "Phase 4 \u2014 deliberation protocol",
+      "doc": "The deliberation protocol \u2014 Phase 4.",
+      "loc": 239,
+      "imports": [
+        "__future__",
+        "aijury.agents.adversary",
+        "aijury.agents.base",
+        "aijury.agents.framer",
+        "aijury.agents.juror",
+        "aijury.agents.moderator",
+        "aijury.agents.spawner",
+        "aijury.agents.synthesizer",
+        "aijury.agents.verifier",
+        "aijury.config",
+        "aijury.contracts.messages",
+        "aijury.contracts.verdict",
+        "aijury.core.blackboard",
+        "aijury.core.budget",
+        "aijury.core.termination",
+        "aijury.core.tracing",
+        "aijury.llm.base",
+        "aijury.llm.registry",
+        "aijury.security.injection",
+        "asyncio",
+        "collections.abc",
+        "dataclasses"
+      ],
+      "internal_deps": [
+        "aijury.agents.adversary",
+        "aijury.agents.base",
+        "aijury.agents.framer",
+        "aijury.agents.juror",
+        "aijury.agents.moderator",
+        "aijury.agents.spawner",
+        "aijury.agents.synthesizer",
+        "aijury.agents.verifier",
+        "aijury.config",
+        "aijury.contracts.messages",
+        "aijury.contracts.verdict",
+        "aijury.core.blackboard",
+        "aijury.core.budget",
+        "aijury.core.termination",
+        "aijury.core.tracing",
+        "aijury.llm.base",
+        "aijury.llm.registry",
+        "aijury.security.injection"
+      ],
+      "symbols": [
+        {
+          "name": "DeliberationResult",
+          "kind": "class",
+          "signature": "class DeliberationResult()",
+          "doc": "",
+          "lineno": 46,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Deliberation",
+          "kind": "class",
+          "signature": "class Deliberation()",
+          "doc": "One question, one panel, one verdict.",
+          "lineno": 56,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Deliberation.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, settings: Settings, *, lessons: list[str] | None=None) -> None",
+          "doc": "",
+          "lineno": 59,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "Deliberation.run",
+          "kind": "method",
+          "signature": "async def run(self, question: str, *, trace_id: str | None=None, on_span: Callable[[Span], None] | None=None) -> DeliberationResult",
+          "doc": "",
+          "lineno": 63,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Adversary",
+            "AgentContext",
+            "Blackboard",
+            "BudgetLedger",
+            "DeliberationResult",
+            "Framer",
+            "Moderator",
+            "Synthesizer",
+            "TerminationController",
+            "TerminationDecision",
+            "Tracer",
+            "Verifier",
+            "_fallback_verdict",
+            "_run_round",
+            "append",
+            "build_client",
+            "evaluate",
+            "event",
+            "export",
+            "len",
+            "range",
+            "round",
+            "run",
+            "screen_input",
+            "sorted",
+            "span",
+            "spawn_jury",
+            "str",
+            "subscribe",
+            "synthesize"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "Deliberation._eject",
+          "kind": "method",
+          "signature": "def _eject(self, name: str, ctx: AgentContext, degraded: list[str], round_index: int, exc: BaseException, *, roster: list[Juror] | None=None) -> None",
+          "doc": "",
+          "lineno": 146,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "append",
+            "event",
+            "silence",
+            "str"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Deliberation._run_round",
+          "kind": "method",
+          "signature": "async def _run_round(self, ctx: AgentContext, jurors: list[Juror], adversary: Adversary, moderator: Moderator, verifier: Verifier, question: str, round_index: int, degraded: list[str]) -> None",
+          "doc": "",
+          "lineno": 162,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "BudgetExceeded",
+            "_eject",
+            "attack",
+            "cross_examine",
+            "current_positions",
+            "draft",
+            "gather",
+            "isinstance",
+            "isolate_cruxes",
+            "submit",
+            "verify",
+            "zip"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "Deliberation._fallback_verdict",
+          "kind": "method",
+          "signature": "def _fallback_verdict(ctx: AgentContext, question: str, decision: TerminationDecision) -> Verdict",
+          "doc": "Never return nothing. A degraded, honest verdict beats an exception.",
+          "lineno": 217,
+          "decorators": [
+            "staticmethod"
+          ],
+          "bases": [],
+          "calls": [
+            "Verdict",
+            "authors",
+            "current_positions",
+            "max",
+            "open_cruxes"
+          ],
+          "is_public": false
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/security/__init__.py",
+      "module": "aijury.security.__init__",
+      "phase": "Phase 8 \u2014 hardening",
+      "doc": "",
+      "loc": 3,
+      "imports": [
+        "aijury.security.injection"
+      ],
+      "internal_deps": [
+        "aijury.security.injection"
+      ],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/security/injection.py",
+      "module": "aijury.security.injection",
+      "phase": "Phase 8 \u2014 hardening",
+      "doc": "Prompt-injection defence.",
+      "loc": 60,
+      "imports": [
+        "__future__",
+        "aijury.core.errors",
+        "re"
+      ],
+      "internal_deps": [
+        "aijury.core.errors"
+      ],
+      "symbols": [
+        {
+          "name": "detect_injection",
+          "kind": "function",
+          "signature": "def detect_injection(text: str) -> list[str]",
+          "doc": "Return the injection patterns present in `text`.",
+          "lineno": 37,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "search"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "sanitize_untrusted",
+          "kind": "function",
+          "signature": "def sanitize_untrusted(text: str, *, source: str='unknown') -> str",
+          "doc": "Wrap retrieved content in a data fence and neutralise fence-escape attempts.",
+          "lineno": 42,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "detect_injection",
+            "len",
+            "replace"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "screen_input",
+          "kind": "function",
+          "signature": "def screen_input(question: str, *, max_length: int=20000) -> str",
+          "doc": "Validate the user's question. Raises rather than silently truncating.",
+          "lineno": 53,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "UnsafeInputError",
+            "len",
+            "strip"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/verification/__init__.py",
+      "module": "aijury.verification.__init__",
+      "phase": "Phase 5 \u2014 verification layer",
+      "doc": "",
+      "loc": 4,
+      "imports": [
+        "aijury.verification.base",
+        "aijury.verification.registry"
+      ],
+      "internal_deps": [
+        "aijury.verification.base",
+        "aijury.verification.registry"
+      ],
+      "symbols": []
+    },
+    {
+      "path": "src/aijury/verification/base.py",
+      "module": "aijury.verification.base",
+      "phase": "Phase 5 \u2014 verification layer",
+      "doc": "Verifier plugin interface.",
+      "loc": 34,
+      "imports": [
+        "__future__",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "dataclasses",
+        "typing"
+      ],
+      "internal_deps": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy"
+      ],
+      "symbols": [
+        {
+          "name": "VerificationResult",
+          "kind": "class",
+          "signature": "class VerificationResult()",
+          "doc": "",
+          "lineno": 18,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Verifier",
+          "kind": "class",
+          "signature": "class Verifier(Protocol)",
+          "doc": "",
+          "lineno": 29,
+          "decorators": [
+            "runtime_checkable"
+          ],
+          "bases": [
+            "Protocol"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Verifier.applies",
+          "kind": "method",
+          "signature": "def applies(self, claim: Claim) -> bool",
+          "doc": "",
+          "lineno": 32,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "Verifier.check",
+          "kind": "method",
+          "signature": "def check(self, claim: Claim) -> VerificationResult",
+          "doc": "",
+          "lineno": 34,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/verification/code_execution.py",
+      "module": "aijury.verification.code_execution",
+      "phase": "Phase 5 \u2014 verification layer",
+      "doc": "Code execution verifier.",
+      "loc": 77,
+      "imports": [
+        "__future__",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.verification.base",
+        "pathlib",
+        "re",
+        "subprocess",
+        "sys",
+        "tempfile"
+      ],
+      "internal_deps": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.verification.base"
+      ],
+      "symbols": [
+        {
+          "name": "CodeExecutionVerifier",
+          "kind": "class",
+          "signature": "class CodeExecutionVerifier()",
+          "doc": "",
+          "lineno": 25,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "CodeExecutionVerifier.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, *, enabled: bool=False, timeout: int=_TIMEOUT_SECONDS) -> None",
+          "doc": "",
+          "lineno": 28,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "CodeExecutionVerifier.applies",
+          "kind": "method",
+          "signature": "def applies(self, claim: Claim) -> bool",
+          "doc": "",
+          "lineno": 33,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "any",
+            "search"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "CodeExecutionVerifier.check",
+          "kind": "method",
+          "signature": "def check(self, claim: Claim) -> VerificationResult",
+          "doc": "",
+          "lineno": 41,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Path",
+            "TemporaryDirectory",
+            "VerificationResult",
+            "group",
+            "next",
+            "run",
+            "search",
+            "str",
+            "strip",
+            "write_text"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/verification/consistency.py",
+      "module": "aijury.verification.consistency",
+      "phase": "Phase 5 \u2014 verification layer",
+      "doc": "Structural consistency checks.",
+      "loc": 77,
+      "imports": [
+        "__future__",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.verification.base",
+        "re"
+      ],
+      "internal_deps": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.verification.base"
+      ],
+      "symbols": [
+        {
+          "name": "ConsistencyVerifier",
+          "kind": "class",
+          "signature": "class ConsistencyVerifier()",
+          "doc": "Flags claims whose support cannot carry their strength.",
+          "lineno": 22,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "ConsistencyVerifier.applies",
+          "kind": "method",
+          "signature": "def applies(self, claim: Claim) -> bool",
+          "doc": "",
+          "lineno": 27,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "ConsistencyVerifier.check",
+          "kind": "method",
+          "signature": "def check(self, claim: Claim) -> VerificationResult",
+          "doc": "",
+          "lineno": 30,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "VerificationResult",
+            "all",
+            "bool",
+            "search"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "contradiction_pairs",
+          "kind": "function",
+          "signature": "def contradiction_pairs(claims: list[Claim]) -> list[tuple[str, str]]",
+          "doc": "Detect crude direct negations among claims.",
+          "lineno": 62,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "append",
+            "enumerate",
+            "items",
+            "list",
+            "lower",
+            "replace",
+            "strip",
+            "sub"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/verification/recomputation.py",
+      "module": "aijury.verification.recomputation",
+      "phase": "Phase 5 \u2014 verification layer",
+      "doc": "Arithmetic recomputation.",
+      "loc": 84,
+      "imports": [
+        "__future__",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.verification.base",
+        "ast",
+        "operator",
+        "re"
+      ],
+      "internal_deps": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.verification.base"
+      ],
+      "symbols": [
+        {
+          "name": "safe_eval",
+          "kind": "function",
+          "signature": "def safe_eval(expression: str) -> float",
+          "doc": "Evaluate a pure arithmetic expression. Raises on anything else.",
+          "lineno": 34,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_eval_node",
+            "parse",
+            "replace"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "_eval_node",
+          "kind": "function",
+          "signature": "def _eval_node(node: ast.AST) -> float",
+          "doc": "",
+          "lineno": 40,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "ValueError",
+            "_eval_node",
+            "abs",
+            "float",
+            "isinstance",
+            "type"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "RecomputationVerifier",
+          "kind": "class",
+          "signature": "class RecomputationVerifier()",
+          "doc": "",
+          "lineno": 58,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "RecomputationVerifier.applies",
+          "kind": "method",
+          "signature": "def applies(self, claim: Claim) -> bool",
+          "doc": "",
+          "lineno": 61,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "bool",
+            "search"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "RecomputationVerifier.check",
+          "kind": "method",
+          "signature": "def check(self, claim: Claim) -> VerificationResult",
+          "doc": "",
+          "lineno": 64,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "VerificationResult",
+            "abs",
+            "float",
+            "group",
+            "max",
+            "replace",
+            "safe_eval",
+            "search",
+            "strip"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "src/aijury/verification/registry.py",
+      "module": "aijury.verification.registry",
+      "phase": "Phase 5 \u2014 verification layer",
+      "doc": "Verifier dispatch.",
+      "loc": 59,
+      "imports": [
+        "__future__",
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.core.tracing",
+        "aijury.verification.base",
+        "aijury.verification.code_execution",
+        "aijury.verification.consistency",
+        "aijury.verification.recomputation",
+        "collections.abc"
+      ],
+      "internal_deps": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.core.tracing",
+        "aijury.verification.base",
+        "aijury.verification.code_execution",
+        "aijury.verification.consistency",
+        "aijury.verification.recomputation"
+      ],
+      "symbols": [
+        {
+          "name": "default_verifiers",
+          "kind": "function",
+          "signature": "def default_verifiers(*, allow_code_execution: bool=False) -> list[Verifier]",
+          "doc": "",
+          "lineno": 16,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "CodeExecutionVerifier",
+            "ConsistencyVerifier",
+            "RecomputationVerifier"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "run_verifiers",
+          "kind": "function",
+          "signature": "def run_verifiers(claims: Sequence[Claim], methods: Sequence[VerificationMethod], tracer: Tracer | None=None, *, verifiers: Sequence[Verifier] | None=None) -> list[VerificationResult]",
+          "doc": "Run every applicable verifier over every claim.",
+          "lineno": 24,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "VerificationResult",
+            "append",
+            "applies",
+            "check",
+            "default_verifiers",
+            "event",
+            "list",
+            "set"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/__init__.py",
+      "module": "tests.__init__",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 0,
+      "imports": [],
+      "internal_deps": [],
+      "symbols": []
+    },
+    {
+      "path": "tests/conftest.py",
+      "module": "tests.conftest",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 13,
+      "imports": [
+        "aijury.config",
+        "pytest"
+      ],
+      "internal_deps": [
+        "aijury.config"
+      ],
+      "symbols": [
+        {
+          "name": "settings",
+          "kind": "function",
+          "signature": "def settings(tmp_path)",
+          "doc": "",
+          "lineno": 7,
+          "decorators": [
+            "pytest.fixture"
+          ],
+          "bases": [],
+          "calls": [
+            "Budget",
+            "Settings",
+            "str"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/test_api.py",
+      "module": "tests.test_api",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 107,
+      "imports": [
+        "aijury.api.server",
+        "fastapi.testclient",
+        "json",
+        "pytest"
+      ],
+      "internal_deps": [
+        "aijury.api.server"
+      ],
+      "symbols": [
+        {
+          "name": "client",
+          "kind": "function",
+          "signature": "def client(settings)",
+          "doc": "",
+          "lineno": 10,
+          "decorators": [
+            "pytest.fixture"
+          ],
+          "bases": [],
+          "calls": [
+            "TestClient",
+            "create_app"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_health_reports_configuration",
+          "kind": "function",
+          "signature": "def test_health_reports_configuration(client, settings)",
+          "doc": "",
+          "lineno": 14,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "get",
+            "json"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_ask_returns_full_record",
+          "kind": "function",
+          "signature": "def test_ask_returns_full_record(client)",
+          "doc": "",
+          "lineno": 21,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "json",
+            "post"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_ask_rejects_empty_question",
+          "kind": "function",
+          "signature": "def test_ask_rejects_empty_question(client)",
+          "doc": "",
+          "lineno": 29,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "post"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_ask_honours_per_request_overrides",
+          "kind": "function",
+          "signature": "def test_ask_honours_per_request_overrides(client)",
+          "doc": "",
+          "lineno": 33,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "json",
+            "len",
+            "post"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_ask_accepts_single_round_and_single_juror",
+          "kind": "function",
+          "signature": "def test_ask_accepts_single_round_and_single_juror(client)",
+          "doc": "",
+          "lineno": 41,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "json",
+            "post"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_ask_rejects_non_positive_panel_shape",
+          "kind": "function",
+          "signature": "def test_ask_rejects_non_positive_panel_shape(client)",
+          "doc": "",
+          "lineno": 49,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "post"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_verdict_in_api_carries_no_transcript",
+          "kind": "function",
+          "signature": "def test_verdict_in_api_carries_no_transcript(client)",
+          "doc": "The API's Verdict must honour the results-only contract.",
+          "lineno": 58,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "json",
+            "post"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_stream_emits_spans_then_verdict",
+          "kind": "function",
+          "signature": "def test_stream_emits_spans_then_verdict(client)",
+          "doc": "",
+          "lineno": 65,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "iter_lines",
+            "len",
+            "startswith",
+            "stream"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_stream_reports_errors_without_hanging",
+          "kind": "function",
+          "signature": "def test_stream_reports_errors_without_hanging(client)",
+          "doc": "",
+          "lineno": 81,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "stream"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_index_serves_the_console",
+          "kind": "function",
+          "signature": "def test_index_serves_the_console(client)",
+          "doc": "",
+          "lineno": 86,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "get"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_console_does_not_expose_round_or_juror_controls",
+          "kind": "function",
+          "signature": "def test_console_does_not_expose_round_or_juror_controls(client)",
+          "doc": "",
+          "lineno": 92,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "get"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_streamed_span_payload_is_json",
+          "kind": "function",
+          "signature": "def test_streamed_span_payload_is_json(client)",
+          "doc": "",
+          "lineno": 100,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "isinstance",
+            "iter_lines",
+            "len",
+            "loads",
+            "startswith",
+            "stream"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/test_codegraph.py",
+      "module": "tests.test_codegraph",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 42,
+      "imports": [
+        "json",
+        "pathlib",
+        "subprocess",
+        "sys"
+      ],
+      "internal_deps": [],
+      "symbols": [
+        {
+          "name": "test_codegraph_builds_and_maps_phases",
+          "kind": "function",
+          "signature": "def test_codegraph_builds_and_maps_phases(tmp_path)",
+          "doc": "",
+          "lineno": 9,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "loads",
+            "read_text",
+            "run",
+            "startswith",
+            "str"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_codegraph_captures_signatures_and_docs",
+          "kind": "function",
+          "signature": "def test_codegraph_captures_signatures_and_docs(tmp_path)",
+          "doc": "",
+          "lineno": 29,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "loads",
+            "next",
+            "read_text",
+            "run",
+            "str"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/test_contracts.py",
+      "module": "tests.test_contracts",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 49,
+      "imports": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "pydantic",
+        "pytest"
+      ],
+      "internal_deps": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict"
+      ],
+      "symbols": [
+        {
+          "name": "_verdict",
+          "kind": "function",
+          "signature": "def _verdict(**kwargs)",
+          "doc": "",
+          "lineno": 9,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Verdict",
+            "dict",
+            "update"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "test_grey_verdict_without_dissent_is_rejected",
+          "kind": "function",
+          "signature": "def test_grey_verdict_without_dissent_is_rejected()",
+          "doc": "The core guardrail: a grey-area result must map the disagreement.",
+          "lineno": 21,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_verdict",
+            "raises"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_grey_verdict_with_dissent_is_accepted",
+          "kind": "function",
+          "signature": "def test_grey_verdict_with_dissent_is_accepted()",
+          "doc": "",
+          "lineno": 27,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Dissent",
+            "_verdict"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_unresolved_cannot_be_confident",
+          "kind": "function",
+          "signature": "def test_unresolved_cannot_be_confident()",
+          "doc": "",
+          "lineno": 35,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_verdict",
+            "raises"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_execution_evidence_outweighs_assertion",
+          "kind": "function",
+          "signature": "def test_execution_evidence_outweighs_assertion()",
+          "doc": "",
+          "lineno": 40,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Evidence"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_claim_fingerprint_is_case_insensitive",
+          "kind": "function",
+          "signature": "def test_claim_fingerprint_is_case_insensitive()",
+          "doc": "",
+          "lineno": 46,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Claim"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/test_core.py",
+      "module": "tests.test_core",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 151,
+      "imports": [
+        "aijury.config",
+        "aijury.contracts.messages",
+        "aijury.core.blackboard",
+        "aijury.core.budget",
+        "aijury.core.termination",
+        "aijury.core.tracing",
+        "os",
+        "pytest"
+      ],
+      "internal_deps": [
+        "aijury.config",
+        "aijury.contracts.messages",
+        "aijury.core.blackboard",
+        "aijury.core.budget",
+        "aijury.core.termination",
+        "aijury.core.tracing"
+      ],
+      "symbols": [
+        {
+          "name": "_pos",
+          "kind": "function",
+          "signature": "def _pos(author, summary, round_index=0, confidence=0.7)",
+          "doc": "",
+          "lineno": 13,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Position"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "test_budget_raises_on_token_exhaustion",
+          "kind": "function",
+          "signature": "def test_budget_raises_on_token_exhaustion()",
+          "doc": "",
+          "lineno": 19,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Budget",
+            "BudgetLedger",
+            "check",
+            "raises",
+            "record"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_blackboard_logs_belief_change",
+          "kind": "function",
+          "signature": "def test_blackboard_logs_belief_change()",
+          "doc": "",
+          "lineno": 26,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Blackboard",
+            "_pos",
+            "len",
+            "submit"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_transcript_anonymization_hides_authors",
+          "kind": "function",
+          "signature": "def test_transcript_anonymization_hides_authors()",
+          "doc": "",
+          "lineno": 34,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Blackboard",
+            "_pos",
+            "submit",
+            "transcript"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_current_positions_takes_latest_per_author",
+          "kind": "function",
+          "signature": "def test_current_positions_takes_latest_per_author()",
+          "doc": "",
+          "lineno": 41,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Blackboard",
+            "_pos",
+            "current_positions",
+            "submit"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_silenced_author_is_kept_on_record_but_left_out_of_discussion",
+          "kind": "function",
+          "signature": "def test_silenced_author_is_kept_on_record_but_left_out_of_discussion()",
+          "doc": "",
+          "lineno": 48,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Blackboard",
+            "_pos",
+            "any",
+            "current_positions",
+            "silence",
+            "submit",
+            "transcript"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_agreement_score_high_for_identical_positions",
+          "kind": "function",
+          "signature": "def test_agreement_score_high_for_identical_positions()",
+          "doc": "",
+          "lineno": 58,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Blackboard",
+            "_pos",
+            "agreement_score",
+            "submit"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_stable_divergence_is_detected_as_grey_area",
+          "kind": "function",
+          "signature": "def test_stable_divergence_is_detected_as_grey_area()",
+          "doc": "",
+          "lineno": 65,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Blackboard",
+            "Budget",
+            "BudgetLedger",
+            "Settings",
+            "TerminationController",
+            "_pos",
+            "evaluate",
+            "range",
+            "submit"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_round_cap_terminates",
+          "kind": "function",
+          "signature": "def test_round_cap_terminates()",
+          "doc": "",
+          "lineno": 77,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Blackboard",
+            "Budget",
+            "BudgetLedger",
+            "Settings",
+            "TerminationController",
+            "_pos",
+            "evaluate",
+            "submit"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_consensus_is_preferred_to_the_round_cap",
+          "kind": "function",
+          "signature": "def test_consensus_is_preferred_to_the_round_cap()",
+          "doc": "Rounds continue for an outcome, not because a counter ran out.",
+          "lineno": 87,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Blackboard",
+            "Budget",
+            "BudgetLedger",
+            "Settings",
+            "TerminationController",
+            "_pos",
+            "evaluate",
+            "submit"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_tracer_records_error_on_span",
+          "kind": "function",
+          "signature": "def test_tracer_records_error_on_span()",
+          "doc": "",
+          "lineno": 98,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Tracer",
+            "ValueError",
+            "raises",
+            "span"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_unverified_claims_excludes_uncheckable",
+          "kind": "function",
+          "signature": "def test_unverified_claims_excludes_uncheckable()",
+          "doc": "",
+          "lineno": 105,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Blackboard",
+            "Claim",
+            "_pos",
+            "len",
+            "submit",
+            "unverified_claims"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_dotenv_loads_values",
+          "kind": "function",
+          "signature": "def test_dotenv_loads_values(tmp_path, monkeypatch)",
+          "doc": "",
+          "lineno": 116,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "delenv",
+            "load_dotenv",
+            "write_text"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_real_env_wins_over_dotenv",
+          "kind": "function",
+          "signature": "def test_real_env_wins_over_dotenv(tmp_path, monkeypatch)",
+          "doc": "A value exported in the shell must not be silently replaced by a file.",
+          "lineno": 128,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "load_dotenv",
+            "setenv",
+            "write_text"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_dotenv_missing_file_is_not_an_error",
+          "kind": "function",
+          "signature": "def test_dotenv_missing_file_is_not_an_error(tmp_path)",
+          "doc": "",
+          "lineno": 139,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "load_dotenv"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_settings_from_env_reads_dotenv",
+          "kind": "function",
+          "signature": "def test_settings_from_env_reads_dotenv(tmp_path, monkeypatch)",
+          "doc": "",
+          "lineno": 145,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "chdir",
+            "delenv",
+            "from_env",
+            "write_text"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/test_deliberation.py",
+      "module": "tests.test_deliberation",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 185,
+      "imports": [
+        "aijury.agents.spawner",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "aijury.pipeline",
+        "aijury.protocol.deliberation"
+      ],
+      "internal_deps": [
+        "aijury.agents.spawner",
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "aijury.pipeline",
+        "aijury.protocol.deliberation"
+      ],
+      "symbols": [
+        {
+          "name": "_frame",
+          "kind": "function",
+          "signature": "def _frame(perspectives, qtype=QuestionType.ANALYTICAL)",
+          "doc": "",
+          "lineno": 8,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Frame"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "test_spawner_caps_jury_size",
+          "kind": "function",
+          "signature": "def test_spawner_caps_jury_size(settings)",
+          "doc": "",
+          "lineno": 17,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_frame",
+            "len",
+            "range",
+            "spawn_jury"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_spawner_deduplicates_perspectives",
+          "kind": "function",
+          "signature": "def test_spawner_deduplicates_perspectives(settings)",
+          "doc": "",
+          "lineno": 22,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_frame",
+            "len",
+            "spawn_jury"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_spawner_follows_required_perspectives",
+          "kind": "function",
+          "signature": "def test_spawner_follows_required_perspectives(settings)",
+          "doc": "Panel size is the framed requirement, capped by max_jurors, at least one.",
+          "lineno": 27,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_frame",
+            "len",
+            "spawn_jury"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_spawner_allows_a_single_juror_when_capped_at_one",
+          "kind": "function",
+          "signature": "def test_spawner_allows_a_single_juror_when_capped_at_one(settings)",
+          "doc": "",
+          "lineno": 32,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Budget",
+            "_frame",
+            "len",
+            "replace",
+            "spawn_jury"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_spawner_falls_back_when_no_perspectives",
+          "kind": "function",
+          "signature": "def test_spawner_falls_back_when_no_perspectives(settings)",
+          "doc": "",
+          "lineno": 41,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_frame",
+            "len",
+            "spawn_jury"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_deliberation_produces_a_verdict",
+          "kind": "async_function",
+          "signature": "async def test_deliberation_produces_a_verdict(settings)",
+          "doc": "",
+          "lineno": 45,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Deliberation",
+            "run"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_deliberation_respects_round_cap",
+          "kind": "async_function",
+          "signature": "async def test_deliberation_respects_round_cap(settings)",
+          "doc": "",
+          "lineno": 54,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Deliberation",
+            "run"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_verdict_does_not_leak_deliberation_transcript",
+          "kind": "async_function",
+          "signature": "async def test_verdict_does_not_leak_deliberation_transcript(settings)",
+          "doc": "Output contract: results, not thinking.",
+          "lineno": 59,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Deliberation",
+            "lower",
+            "render",
+            "run"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_pipeline_rejects_invalid_input_without_spending_a_call",
+          "kind": "async_function",
+          "signature": "async def test_pipeline_rejects_invalid_input_without_spending_a_call(settings)",
+          "doc": "Bad input fails fast at the boundary rather than falling back.",
+          "lineno": 67,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "JuryPipeline",
+            "ask",
+            "raises"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_pipeline_falls_back_when_deliberation_raises",
+          "kind": "async_function",
+          "signature": "async def test_pipeline_falls_back_when_deliberation_raises(settings, monkeypatch)",
+          "doc": "",
+          "lineno": 77,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "JuryPipeline",
+            "RuntimeError",
+            "ask",
+            "setattr"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_trace_is_exported_to_disk",
+          "kind": "async_function",
+          "signature": "async def test_trace_is_exported_to_disk(settings)",
+          "doc": "",
+          "lineno": 86,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Deliberation",
+            "exists",
+            "join",
+            "run"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_budget_exhaustion_still_returns_a_verdict",
+          "kind": "async_function",
+          "signature": "async def test_budget_exhaustion_still_returns_a_verdict(settings)",
+          "doc": "",
+          "lineno": 93,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Budget",
+            "Deliberation",
+            "replace",
+            "run",
+            "set"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_open_cruxes_prevent_a_clean_resolved_verdict",
+          "kind": "async_function",
+          "signature": "async def test_open_cruxes_prevent_a_clean_resolved_verdict(settings)",
+          "doc": "Structural guard against reporting consensus over an unresolved crux.",
+          "lineno": 103,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Deliberation",
+            "open_cruxes",
+            "run"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_failed_juror_is_ejected_and_error_is_not_discussed",
+          "kind": "async_function",
+          "signature": "async def test_failed_juror_is_ejected_and_error_is_not_discussed(settings, monkeypatch)",
+          "doc": "A crashing agent leaves the panel; its error text never becomes debate material.",
+          "lineno": 112,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Boom",
+            "Deliberation",
+            "RuntimeError",
+            "TerminationDecision",
+            "all",
+            "any",
+            "real_spawn",
+            "run",
+            "setattr",
+            "transcript"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_failed_adversary_is_skipped_in_later_rounds",
+          "kind": "async_function",
+          "signature": "async def test_failed_adversary_is_skipped_in_later_rounds(settings, monkeypatch)",
+          "doc": "",
+          "lineno": 158,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Deliberation",
+            "RuntimeError",
+            "TerminationDecision",
+            "any",
+            "run",
+            "setattr",
+            "transcript"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/test_evaluation.py",
+      "module": "tests.test_evaluation",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 64,
+      "imports": [
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "aijury.evaluation.harness",
+        "aijury.evaluation.scorer"
+      ],
+      "internal_deps": [
+        "aijury.contracts.taxonomy",
+        "aijury.contracts.verdict",
+        "aijury.evaluation.harness",
+        "aijury.evaluation.scorer"
+      ],
+      "symbols": [
+        {
+          "name": "_verdict",
+          "kind": "function",
+          "signature": "def _verdict(answer, outcome=Outcome.RESOLVED, confidence=0.8, qtype=QuestionType.FACTUAL)",
+          "doc": "",
+          "lineno": 9,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Dissent",
+            "Verdict",
+            "dict"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "test_asserting_consensus_on_grey_question_is_false_consensus",
+          "kind": "function",
+          "signature": "def test_asserting_consensus_on_grey_question_is_false_consensus()",
+          "doc": "",
+          "lineno": 18,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_verdict",
+            "score_verdict"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_grey_verdict_on_grey_question_is_not_false_consensus",
+          "kind": "function",
+          "signature": "def test_grey_verdict_on_grey_question_is_not_false_consensus()",
+          "doc": "",
+          "lineno": 27,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_verdict",
+            "score_verdict"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_confidently_wrong_is_flagged",
+          "kind": "function",
+          "signature": "def test_confidently_wrong_is_flagged()",
+          "doc": "",
+          "lineno": 36,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_verdict",
+            "score_verdict"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_ece_is_zero_for_perfect_calibration",
+          "kind": "function",
+          "signature": "def test_ece_is_zero_for_perfect_calibration()",
+          "doc": "",
+          "lineno": 44,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "expected_calibration_error"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_ece_penalizes_overconfidence",
+          "kind": "function",
+          "signature": "def test_ece_penalizes_overconfidence()",
+          "doc": "",
+          "lineno": 49,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "expected_calibration_error"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_golden_dataset_loads_and_covers_all_types",
+          "kind": "function",
+          "signature": "def test_golden_dataset_loads_and_covers_all_types()",
+          "doc": "",
+          "lineno": 53,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "len",
+            "load_dataset",
+            "set"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_eval_harness_runs_both_arms",
+          "kind": "async_function",
+          "signature": "async def test_eval_harness_runs_both_arms(settings)",
+          "doc": "",
+          "lineno": 59,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "isinstance",
+            "load_dataset",
+            "render",
+            "run_eval"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/test_learning.py",
+      "module": "tests.test_learning",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 65,
+      "imports": [
+        "aijury.learning.failure_store",
+        "aijury.learning.injector",
+        "aijury.learning.lesson_extractor"
+      ],
+      "internal_deps": [
+        "aijury.learning.failure_store",
+        "aijury.learning.injector",
+        "aijury.learning.lesson_extractor"
+      ],
+      "symbols": [
+        {
+          "name": "_failure",
+          "kind": "function",
+          "signature": "def _failure(idx, **kwargs)",
+          "doc": "",
+          "lineno": 6,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "FailureRecord",
+            "dict",
+            "update"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "test_single_failure_does_not_become_a_lesson",
+          "kind": "function",
+          "signature": "def test_single_failure_does_not_become_a_lesson()",
+          "doc": "Promotion threshold: one failure is noise, not a pattern.",
+          "lineno": 23,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_failure",
+            "extract_lessons"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_recurring_pattern_is_promoted",
+          "kind": "function",
+          "signature": "def test_recurring_pattern_is_promoted()",
+          "doc": "",
+          "lineno": 28,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_failure",
+            "extract_lessons",
+            "range"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_failure_summary_attributes_errors_to_agents",
+          "kind": "function",
+          "signature": "def test_failure_summary_attributes_errors_to_agents()",
+          "doc": "",
+          "lineno": 35,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_failure",
+            "failure_summary"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_store_roundtrip",
+          "kind": "function",
+          "signature": "def test_store_roundtrip(settings)",
+          "doc": "",
+          "lineno": 40,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "FailureStore",
+            "_failure",
+            "all",
+            "len",
+            "record"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_only_active_lessons_are_injected",
+          "kind": "function",
+          "signature": "def test_only_active_lessons_are_injected(settings)",
+          "doc": "",
+          "lineno": 47,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_failure",
+            "extract_lessons",
+            "load_lessons",
+            "range",
+            "save_lessons"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_injection_is_capped",
+          "kind": "function",
+          "signature": "def test_injection_is_capped(settings)",
+          "doc": "",
+          "lineno": 55,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_failure",
+            "extract_lessons",
+            "len",
+            "load_lessons",
+            "range",
+            "save_lessons"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_agent_scoped_lessons",
+          "kind": "function",
+          "signature": "def test_agent_scoped_lessons(settings)",
+          "doc": "",
+          "lineno": 62,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_failure",
+            "all",
+            "extract_lessons",
+            "isinstance",
+            "load_lessons",
+            "range",
+            "save_lessons"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/test_llm.py",
+      "module": "tests.test_llm",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 154,
+      "imports": [
+        "aijury.llm.base",
+        "aijury.llm.mock",
+        "pydantic",
+        "pytest"
+      ],
+      "internal_deps": [
+        "aijury.llm.base",
+        "aijury.llm.mock"
+      ],
+      "symbols": [
+        {
+          "name": "Sample",
+          "kind": "class",
+          "signature": "class Sample(BaseModel)",
+          "doc": "",
+          "lineno": 8,
+          "decorators": [],
+          "bases": [
+            "BaseModel"
+          ],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "test_extract_json_handles_fences_and_preamble",
+          "kind": "function",
+          "signature": "def test_extract_json_handles_fences_and_preamble()",
+          "doc": "",
+          "lineno": 13,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "extract_json"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_extract_json_handles_braces_in_strings",
+          "kind": "function",
+          "signature": "def test_extract_json_handles_braces_in_strings()",
+          "doc": "",
+          "lineno": 17,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "extract_json"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_extract_json_raises_without_object",
+          "kind": "function",
+          "signature": "def test_extract_json_raises_without_object()",
+          "doc": "",
+          "lineno": 21,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "extract_json",
+            "raises"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_structured_completion_validates_against_schema",
+          "kind": "async_function",
+          "signature": "async def test_structured_completion_validates_against_schema()",
+          "doc": "",
+          "lineno": 26,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "MockLLMClient",
+            "complete_structured",
+            "isinstance"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_structured_completion_raises_after_retries",
+          "kind": "async_function",
+          "signature": "async def test_structured_completion_raises_after_retries()",
+          "doc": "",
+          "lineno": 33,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Broken",
+            "LLMResponse",
+            "complete_structured",
+            "raises"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_mock_is_deterministic_for_same_seed",
+          "kind": "async_function",
+          "signature": "async def test_mock_is_deterministic_for_same_seed()",
+          "doc": "",
+          "lineno": 46,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "MockLLMClient",
+            "complete"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "_Msg",
+          "kind": "class",
+          "signature": "class _Msg()",
+          "doc": "",
+          "lineno": 54,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "_Msg.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, content: str) -> None",
+          "doc": "",
+          "lineno": 55,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "_Choice",
+          "kind": "class",
+          "signature": "class _Choice()",
+          "doc": "",
+          "lineno": 59,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "_Choice.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, content: str) -> None",
+          "doc": "",
+          "lineno": 60,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_Msg"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_Usage",
+          "kind": "class",
+          "signature": "class _Usage()",
+          "doc": "",
+          "lineno": 64,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "_Completion",
+          "kind": "class",
+          "signature": "class _Completion()",
+          "doc": "",
+          "lineno": 69,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "_Completion.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, content: str) -> None",
+          "doc": "",
+          "lineno": 70,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_Choice",
+            "_Usage"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_FakeOpenAI",
+          "kind": "class",
+          "signature": "class _FakeOpenAI()",
+          "doc": "",
+          "lineno": 75,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": false
+        },
+        {
+          "name": "_FakeOpenAI.__init__",
+          "kind": "method",
+          "signature": "def __init__(self, **kwargs) -> None",
+          "doc": "",
+          "lineno": 76,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "_Chat",
+            "_Completion",
+            "_Completions",
+            "append"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "test_hcnsec_settings_come_from_env",
+          "kind": "function",
+          "signature": "def test_hcnsec_settings_come_from_env(tmp_path, monkeypatch)",
+          "doc": "",
+          "lineno": 95,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "chdir",
+            "delenv",
+            "from_env",
+            "write_text"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_build_client_hcnsec_uses_openai_compat",
+          "kind": "function",
+          "signature": "def test_build_client_hcnsec_uses_openai_compat(monkeypatch)",
+          "doc": "",
+          "lineno": 114,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Settings",
+            "build_client",
+            "setattr"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_hcnsec_client_requires_api_key",
+          "kind": "function",
+          "signature": "def test_hcnsec_client_requires_api_key()",
+          "doc": "",
+          "lineno": 131,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Settings",
+            "build_client",
+            "raises"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_openai_compat_complete_reads_chat_content",
+          "kind": "async_function",
+          "signature": "async def test_openai_compat_complete_reads_chat_content(monkeypatch)",
+          "doc": "",
+          "lineno": 139,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "OpenAICompatClient",
+            "_FakeOpenAI",
+            "complete"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/test_security.py",
+      "module": "tests.test_security",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 29,
+      "imports": [
+        "aijury.core.errors",
+        "aijury.security.injection",
+        "pytest"
+      ],
+      "internal_deps": [
+        "aijury.core.errors",
+        "aijury.security.injection"
+      ],
+      "symbols": [
+        {
+          "name": "test_detects_instruction_override",
+          "kind": "function",
+          "signature": "def test_detects_instruction_override()",
+          "doc": "",
+          "lineno": 7,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "detect_injection"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_fence_escape_is_neutralized",
+          "kind": "function",
+          "signature": "def test_fence_escape_is_neutralized()",
+          "doc": "",
+          "lineno": 11,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "count",
+            "sanitize_untrusted"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_wrapped_content_is_flagged",
+          "kind": "function",
+          "signature": "def test_wrapped_content_is_flagged()",
+          "doc": "",
+          "lineno": 17,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "sanitize_untrusted"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_empty_question_rejected",
+          "kind": "function",
+          "signature": "def test_empty_question_rejected()",
+          "doc": "",
+          "lineno": 22,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "raises",
+            "screen_input"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_oversized_question_rejected",
+          "kind": "function",
+          "signature": "def test_oversized_question_rejected()",
+          "doc": "",
+          "lineno": 27,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "raises",
+            "screen_input"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tests/test_verification.py",
+      "module": "tests.test_verification",
+      "phase": "Tests",
+      "doc": "",
+      "loc": 64,
+      "imports": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.verification.consistency",
+        "aijury.verification.recomputation",
+        "aijury.verification.registry"
+      ],
+      "internal_deps": [
+        "aijury.contracts.messages",
+        "aijury.contracts.taxonomy",
+        "aijury.verification.consistency",
+        "aijury.verification.recomputation",
+        "aijury.verification.registry"
+      ],
+      "symbols": [
+        {
+          "name": "test_safe_eval_rejects_non_arithmetic",
+          "kind": "function",
+          "signature": "def test_safe_eval_rejects_non_arithmetic()",
+          "doc": "",
+          "lineno": 8,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "raises",
+            "safe_eval"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_recomputation_catches_wrong_arithmetic",
+          "kind": "function",
+          "signature": "def test_recomputation_catches_wrong_arithmetic()",
+          "doc": "",
+          "lineno": 15,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Claim",
+            "RecomputationVerifier",
+            "check"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_recomputation_passes_correct_arithmetic",
+          "kind": "function",
+          "signature": "def test_recomputation_passes_correct_arithmetic()",
+          "doc": "",
+          "lineno": 21,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Claim",
+            "RecomputationVerifier",
+            "check"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_consistency_rejects_evidence_free_claim",
+          "kind": "function",
+          "signature": "def test_consistency_rejects_evidence_free_claim()",
+          "doc": "",
+          "lineno": 27,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Claim",
+            "ConsistencyVerifier",
+            "check"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_consistency_rejects_universal_claim_on_assertion_only",
+          "kind": "function",
+          "signature": "def test_consistency_rejects_universal_claim_on_assertion_only()",
+          "doc": "",
+          "lineno": 33,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Claim",
+            "ConsistencyVerifier",
+            "Evidence",
+            "check"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_registry_respects_method_allowlist",
+          "kind": "function",
+          "signature": "def test_registry_respects_method_allowlist()",
+          "doc": "",
+          "lineno": 44,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Claim",
+            "run_verifiers"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "test_verifier_defect_does_not_halt_deliberation",
+          "kind": "function",
+          "signature": "def test_verifier_defect_does_not_halt_deliberation()",
+          "doc": "",
+          "lineno": 50,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Claim",
+            "Exploding",
+            "RuntimeError",
+            "len",
+            "run_verifiers"
+          ],
+          "is_public": true
+        }
+      ]
+    },
+    {
+      "path": "tools/codegraph/__init__.py",
+      "module": "tools.codegraph.__init__",
+      "phase": "Tooling \u2014 project context for AI agents",
+      "doc": "",
+      "loc": 0,
+      "imports": [],
+      "internal_deps": [],
+      "symbols": []
+    },
+    {
+      "path": "tools/codegraph/build.py",
+      "module": "tools.codegraph.build",
+      "phase": "Tooling \u2014 project context for AI agents",
+      "doc": "Codegraph builder.",
+      "loc": 293,
+      "imports": [
+        "__future__",
+        "argparse",
+        "ast",
+        "dataclasses",
+        "json",
+        "os",
+        "pathlib",
+        "typing"
+      ],
+      "internal_deps": [],
+      "symbols": [
+        {
+          "name": "PHASE_MAP",
+          "kind": "constant",
+          "signature": "PHASE_MAP: list[tuple[str, str]]",
+          "doc": "",
+          "lineno": 26,
+          "decorators": [],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "SymbolInfo",
+          "kind": "class",
+          "signature": "class SymbolInfo()",
+          "doc": "",
+          "lineno": 50,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "ModuleInfo",
+          "kind": "class",
+          "signature": "class ModuleInfo()",
+          "doc": "",
+          "lineno": 63,
+          "decorators": [
+            "dataclass"
+          ],
+          "bases": [],
+          "calls": [],
+          "is_public": true
+        },
+        {
+          "name": "_sig",
+          "kind": "function",
+          "signature": "def _sig(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str",
+          "doc": "",
+          "lineno": 74,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "isinstance",
+            "unparse"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_doc",
+          "kind": "function",
+          "signature": "def _doc(node: ast.AST) -> str",
+          "doc": "",
+          "lineno": 81,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "get_docstring",
+            "split",
+            "strip"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "_calls",
+          "kind": "function",
+          "signature": "def _calls(node: ast.AST) -> list[str]",
+          "doc": "Best-effort outgoing call names. Enough for a call graph, not a compiler.",
+          "lineno": 86,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "add",
+            "isinstance",
+            "set",
+            "sorted",
+            "walk"
+          ],
+          "is_public": false
+        },
+        {
+          "name": "phase_for",
+          "kind": "function",
+          "signature": "def phase_for(relpath: str) -> str",
+          "doc": "",
+          "lineno": 99,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "endswith",
+            "removesuffix",
+            "replace",
+            "rstrip",
+            "startswith"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "analyze_file",
+          "kind": "function",
+          "signature": "def analyze_file(path: Path, root: Path) -> ModuleInfo | None",
+          "doc": "",
+          "lineno": 112,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "ModuleInfo",
+            "SymbolInfo",
+            "_calls",
+            "_doc",
+            "_sig",
+            "append",
+            "isinstance",
+            "isupper",
+            "join",
+            "len",
+            "parse",
+            "phase_for",
+            "read_text",
+            "relative_to",
+            "removeprefix",
+            "removesuffix",
+            "replace",
+            "set",
+            "sorted",
+            "splitlines",
+            "startswith",
+            "str",
+            "unparse"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "build_graph",
+          "kind": "function",
+          "signature": "def build_graph(root: Path) -> dict[str, Any]",
+          "doc": "",
+          "lineno": 191,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "Path",
+            "analyze_file",
+            "append",
+            "asdict",
+            "endswith",
+            "len",
+            "sort",
+            "sorted",
+            "startswith",
+            "sum",
+            "walk"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "render_markdown",
+          "kind": "function",
+          "signature": "def render_markdown(graph: dict[str, Any]) -> str",
+          "doc": "",
+          "lineno": 229,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "append",
+            "join",
+            "setdefault",
+            "sorted"
+          ],
+          "is_public": true
+        },
+        {
+          "name": "main",
+          "kind": "function",
+          "signature": "def main() -> int",
+          "doc": "",
+          "lineno": 270,
+          "decorators": [],
+          "bases": [],
+          "calls": [
+            "ArgumentParser",
+            "Path",
+            "add_argument",
+            "build_graph",
+            "dumps",
+            "mkdir",
+            "parse_args",
+            "print",
+            "render_markdown",
+            "resolve",
+            "write_text"
+          ],
+          "is_public": true
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "aijury.agents.__init__",
+      "to": "aijury.agents.adversary"
+    },
+    {
+      "from": "aijury.agents.__init__",
+      "to": "aijury.agents.base"
+    },
+    {
+      "from": "aijury.agents.__init__",
+      "to": "aijury.agents.framer"
+    },
+    {
+      "from": "aijury.agents.__init__",
+      "to": "aijury.agents.juror"
+    },
+    {
+      "from": "aijury.agents.__init__",
+      "to": "aijury.agents.moderator"
+    },
+    {
+      "from": "aijury.agents.__init__",
+      "to": "aijury.agents.spawner"
+    },
+    {
+      "from": "aijury.agents.__init__",
+      "to": "aijury.agents.synthesizer"
+    },
+    {
+      "from": "aijury.agents.__init__",
+      "to": "aijury.agents.verifier"
+    },
+    {
+      "from": "aijury.agents.adversary",
+      "to": "aijury.agents.base"
+    },
+    {
+      "from": "aijury.agents.adversary",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.agents.base",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.agents.base",
+      "to": "aijury.core.blackboard"
+    },
+    {
+      "from": "aijury.agents.base",
+      "to": "aijury.core.budget"
+    },
+    {
+      "from": "aijury.agents.base",
+      "to": "aijury.core.tracing"
+    },
+    {
+      "from": "aijury.agents.base",
+      "to": "aijury.llm.base"
+    },
+    {
+      "from": "aijury.agents.framer",
+      "to": "aijury.agents.base"
+    },
+    {
+      "from": "aijury.agents.framer",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.agents.framer",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.agents.juror",
+      "to": "aijury.agents.base"
+    },
+    {
+      "from": "aijury.agents.juror",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.agents.moderator",
+      "to": "aijury.agents.base"
+    },
+    {
+      "from": "aijury.agents.moderator",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.agents.moderator",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.agents.spawner",
+      "to": "aijury.agents.juror"
+    },
+    {
+      "from": "aijury.agents.spawner",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.agents.spawner",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.agents.spawner",
+      "to": "aijury.llm.registry"
+    },
+    {
+      "from": "aijury.agents.synthesizer",
+      "to": "aijury.agents.base"
+    },
+    {
+      "from": "aijury.agents.synthesizer",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.agents.synthesizer",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.agents.synthesizer",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "aijury.agents.synthesizer",
+      "to": "aijury.core.termination"
+    },
+    {
+      "from": "aijury.agents.verifier",
+      "to": "aijury.agents.base"
+    },
+    {
+      "from": "aijury.agents.verifier",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.agents.verifier",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.agents.verifier",
+      "to": "aijury.verification.registry"
+    },
+    {
+      "from": "aijury.api.__init__",
+      "to": "aijury.api.server"
+    },
+    {
+      "from": "aijury.api.schemas",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "aijury.api.server",
+      "to": "aijury.api.schemas"
+    },
+    {
+      "from": "aijury.api.server",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.api.server",
+      "to": "aijury.core.errors"
+    },
+    {
+      "from": "aijury.api.server",
+      "to": "aijury.core.tracing"
+    },
+    {
+      "from": "aijury.api.server",
+      "to": "aijury.learning.injector"
+    },
+    {
+      "from": "aijury.api.server",
+      "to": "aijury.protocol.deliberation"
+    },
+    {
+      "from": "aijury.baseline",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.baseline",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.baseline",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "aijury.baseline",
+      "to": "aijury.core.budget"
+    },
+    {
+      "from": "aijury.baseline",
+      "to": "aijury.core.tracing"
+    },
+    {
+      "from": "aijury.baseline",
+      "to": "aijury.llm.base"
+    },
+    {
+      "from": "aijury.baseline",
+      "to": "aijury.llm.registry"
+    },
+    {
+      "from": "aijury.baseline",
+      "to": "aijury.security.injection"
+    },
+    {
+      "from": "aijury.cli",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.cli",
+      "to": "aijury.evaluation.harness"
+    },
+    {
+      "from": "aijury.cli",
+      "to": "aijury.learning.failure_store"
+    },
+    {
+      "from": "aijury.cli",
+      "to": "aijury.learning.lesson_extractor"
+    },
+    {
+      "from": "aijury.cli",
+      "to": "aijury.pipeline"
+    },
+    {
+      "from": "aijury.contracts.__init__",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.contracts.__init__",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.contracts.__init__",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "aijury.contracts.verdict",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.core.__init__",
+      "to": "aijury.core.blackboard"
+    },
+    {
+      "from": "aijury.core.__init__",
+      "to": "aijury.core.budget"
+    },
+    {
+      "from": "aijury.core.__init__",
+      "to": "aijury.core.errors"
+    },
+    {
+      "from": "aijury.core.__init__",
+      "to": "aijury.core.termination"
+    },
+    {
+      "from": "aijury.core.__init__",
+      "to": "aijury.core.tracing"
+    },
+    {
+      "from": "aijury.core.blackboard",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.core.blackboard",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.core.budget",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.core.budget",
+      "to": "aijury.core.errors"
+    },
+    {
+      "from": "aijury.core.termination",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.core.termination",
+      "to": "aijury.core.blackboard"
+    },
+    {
+      "from": "aijury.core.termination",
+      "to": "aijury.core.budget"
+    },
+    {
+      "from": "aijury.evaluation.__init__",
+      "to": "aijury.evaluation.harness"
+    },
+    {
+      "from": "aijury.evaluation.__init__",
+      "to": "aijury.evaluation.scorer"
+    },
+    {
+      "from": "aijury.evaluation.harness",
+      "to": "aijury.baseline"
+    },
+    {
+      "from": "aijury.evaluation.harness",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.evaluation.harness",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.evaluation.harness",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "aijury.evaluation.harness",
+      "to": "aijury.evaluation.scorer"
+    },
+    {
+      "from": "aijury.evaluation.harness",
+      "to": "aijury.pipeline"
+    },
+    {
+      "from": "aijury.evaluation.scorer",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.evaluation.scorer",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "aijury.learning.__init__",
+      "to": "aijury.learning.failure_store"
+    },
+    {
+      "from": "aijury.learning.__init__",
+      "to": "aijury.learning.injector"
+    },
+    {
+      "from": "aijury.learning.__init__",
+      "to": "aijury.learning.lesson_extractor"
+    },
+    {
+      "from": "aijury.learning.failure_store",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.learning.failure_store",
+      "to": "aijury.protocol.deliberation"
+    },
+    {
+      "from": "aijury.learning.injector",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.learning.injector",
+      "to": "aijury.learning.lesson_extractor"
+    },
+    {
+      "from": "aijury.learning.lesson_extractor",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.learning.lesson_extractor",
+      "to": "aijury.learning.failure_store"
+    },
+    {
+      "from": "aijury.llm.__init__",
+      "to": "aijury.llm.base"
+    },
+    {
+      "from": "aijury.llm.__init__",
+      "to": "aijury.llm.registry"
+    },
+    {
+      "from": "aijury.llm.anthropic_client",
+      "to": "aijury.llm.base"
+    },
+    {
+      "from": "aijury.llm.mock",
+      "to": "aijury.llm.base"
+    },
+    {
+      "from": "aijury.llm.openai_client",
+      "to": "aijury.llm.base"
+    },
+    {
+      "from": "aijury.llm.registry",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.llm.registry",
+      "to": "aijury.llm.base"
+    },
+    {
+      "from": "aijury.llm.registry",
+      "to": "aijury.llm.mock"
+    },
+    {
+      "from": "aijury.pipeline",
+      "to": "aijury.baseline"
+    },
+    {
+      "from": "aijury.pipeline",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.pipeline",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "aijury.pipeline",
+      "to": "aijury.learning.injector"
+    },
+    {
+      "from": "aijury.pipeline",
+      "to": "aijury.protocol.deliberation"
+    },
+    {
+      "from": "aijury.pipeline",
+      "to": "aijury.security.injection"
+    },
+    {
+      "from": "aijury.protocol.__init__",
+      "to": "aijury.protocol.deliberation"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.agents.adversary"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.agents.base"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.agents.framer"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.agents.juror"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.agents.moderator"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.agents.spawner"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.agents.synthesizer"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.agents.verifier"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.config"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.core.blackboard"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.core.budget"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.core.termination"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.core.tracing"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.llm.base"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.llm.registry"
+    },
+    {
+      "from": "aijury.protocol.deliberation",
+      "to": "aijury.security.injection"
+    },
+    {
+      "from": "aijury.security.__init__",
+      "to": "aijury.security.injection"
+    },
+    {
+      "from": "aijury.security.injection",
+      "to": "aijury.core.errors"
+    },
+    {
+      "from": "aijury.verification.__init__",
+      "to": "aijury.verification.base"
+    },
+    {
+      "from": "aijury.verification.__init__",
+      "to": "aijury.verification.registry"
+    },
+    {
+      "from": "aijury.verification.base",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.verification.base",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.verification.code_execution",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.verification.code_execution",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.verification.code_execution",
+      "to": "aijury.verification.base"
+    },
+    {
+      "from": "aijury.verification.consistency",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.verification.consistency",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.verification.consistency",
+      "to": "aijury.verification.base"
+    },
+    {
+      "from": "aijury.verification.recomputation",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.verification.recomputation",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.verification.recomputation",
+      "to": "aijury.verification.base"
+    },
+    {
+      "from": "aijury.verification.registry",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "aijury.verification.registry",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "aijury.verification.registry",
+      "to": "aijury.core.tracing"
+    },
+    {
+      "from": "aijury.verification.registry",
+      "to": "aijury.verification.base"
+    },
+    {
+      "from": "aijury.verification.registry",
+      "to": "aijury.verification.code_execution"
+    },
+    {
+      "from": "aijury.verification.registry",
+      "to": "aijury.verification.consistency"
+    },
+    {
+      "from": "aijury.verification.registry",
+      "to": "aijury.verification.recomputation"
+    },
+    {
+      "from": "tests.conftest",
+      "to": "aijury.config"
+    },
+    {
+      "from": "tests.test_api",
+      "to": "aijury.api.server"
+    },
+    {
+      "from": "tests.test_contracts",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "tests.test_contracts",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "tests.test_contracts",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "tests.test_core",
+      "to": "aijury.config"
+    },
+    {
+      "from": "tests.test_core",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "tests.test_core",
+      "to": "aijury.core.blackboard"
+    },
+    {
+      "from": "tests.test_core",
+      "to": "aijury.core.budget"
+    },
+    {
+      "from": "tests.test_core",
+      "to": "aijury.core.termination"
+    },
+    {
+      "from": "tests.test_core",
+      "to": "aijury.core.tracing"
+    },
+    {
+      "from": "tests.test_deliberation",
+      "to": "aijury.agents.spawner"
+    },
+    {
+      "from": "tests.test_deliberation",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "tests.test_deliberation",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "tests.test_deliberation",
+      "to": "aijury.pipeline"
+    },
+    {
+      "from": "tests.test_deliberation",
+      "to": "aijury.protocol.deliberation"
+    },
+    {
+      "from": "tests.test_evaluation",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "tests.test_evaluation",
+      "to": "aijury.contracts.verdict"
+    },
+    {
+      "from": "tests.test_evaluation",
+      "to": "aijury.evaluation.harness"
+    },
+    {
+      "from": "tests.test_evaluation",
+      "to": "aijury.evaluation.scorer"
+    },
+    {
+      "from": "tests.test_learning",
+      "to": "aijury.learning.failure_store"
+    },
+    {
+      "from": "tests.test_learning",
+      "to": "aijury.learning.injector"
+    },
+    {
+      "from": "tests.test_learning",
+      "to": "aijury.learning.lesson_extractor"
+    },
+    {
+      "from": "tests.test_llm",
+      "to": "aijury.llm.base"
+    },
+    {
+      "from": "tests.test_llm",
+      "to": "aijury.llm.mock"
+    },
+    {
+      "from": "tests.test_security",
+      "to": "aijury.core.errors"
+    },
+    {
+      "from": "tests.test_security",
+      "to": "aijury.security.injection"
+    },
+    {
+      "from": "tests.test_verification",
+      "to": "aijury.contracts.messages"
+    },
+    {
+      "from": "tests.test_verification",
+      "to": "aijury.contracts.taxonomy"
+    },
+    {
+      "from": "tests.test_verification",
+      "to": "aijury.verification.consistency"
+    },
+    {
+      "from": "tests.test_verification",
+      "to": "aijury.verification.recomputation"
+    },
+    {
+      "from": "tests.test_verification",
+      "to": "aijury.verification.registry"
+    }
+  ]
+}

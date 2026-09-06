@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+.traces/
+.failures/
+dist/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

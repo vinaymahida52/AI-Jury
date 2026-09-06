@@ -1,0 +1,78 @@
+"""Request and response models for the HTTP API.
+
+Kept separate from the domain contracts: the wire format should be able to change
+without dragging the deliberation schemas with it.
+"""
+
+from __future__ import annotations
+
+from pydantic import BaseModel, Field
+
+from aijury.contracts.verdict import Verdict
+
+
+class AskRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=20_000)
+    #: Per-request overrides. Omitted fields fall back to the server's settings.
+    max_rounds: int | None = Field(default=None, ge=1, le=100)
+    max_jurors: int | None = Field(default=None, ge=1, le=100)
+    use_lessons: bool = True
+
+
+class ClaimView(BaseModel):
+    text: str
+    author: str
+    round_index: int
+    verified: bool | None
+    note: str | None = None
+
+
+class PositionView(BaseModel):
+    author: str
+    round_index: int
+    summary: str
+    confidence: float
+    changed: bool
+    change_reason: str | None = None
+    concedes: str | None = None
+    claims: list[ClaimView] = Field(default_factory=list)
+
+
+class CruxView(BaseModel):
+    description: str
+    resolvable_by: str
+    resolved: bool
+    resolution: str | None = None
+
+
+class DeliberationView(BaseModel):
+    """The full record. Distinct from the Verdict on purpose.
+
+    The Verdict is the product and carries no deliberation transcript. This view
+    is the operator's window into the machinery, and exists only because a human
+    is debugging the panel rather than consuming its answer.
+    """
+
+    verdict: Verdict
+    question_type: str
+    stop_reason: str
+    agreement: float
+    positions: list[PositionView] = Field(default_factory=list)
+    cruxes: list[CruxView] = Field(default_factory=list)
+    belief_changes: list[dict[str, str | int]] = Field(default_factory=list)
+    #: Fraction of checkable claims that passed verification. This is what caps
+    #: the verdict's confidence, so the UI shows it beside the number.
+    verified_ratio: float = 0.0
+    verified_claims: int = 0
+    checkable_claims: int = 0
+    degraded: list[str] = Field(default_factory=list)
+    budget: dict[str, float] = Field(default_factory=dict)
+
+
+class HealthResponse(BaseModel):
+    status: str
+    version: str
+    provider: str
+    max_rounds: int
+    max_jurors: int
+    lessons_active: int

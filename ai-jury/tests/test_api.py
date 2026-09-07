@@ -121,10 +121,63 @@ def test_console_does_not_expose_round_or_juror_controls(client):
     html = client.get("/").text
     assert 'id="chamber"' in html
     assert 'id="clock"' in html
+    assert 'id="dock"' in html
+    assert 'id="dock-toggle"' in html
+    assert "HCNSEC" in html
+    assert 'id="gw-label"' in html
     assert 'id="rounds"' not in html
     assert 'id="jurors"' not in html
     assert "max_rounds=" not in html
     assert "max_jurors=" not in html
+
+
+def test_gateways_catalog_includes_presets(client):
+    body = client.get("/api/gateways").json()
+    assert body["active"] == "mock"
+    ids = {p["id"] for p in body["presets"]}
+    assert "hcnsec" in ids and "tokenera" in ids
+
+
+def test_save_and_seat_gateway_updates_health(client):
+    saved = client.put(
+        "/api/gateways",
+        json={
+            "id": "tokenera",
+            "label": "Tokenera",
+            "base_url": "https://tokenera.example/v1",
+            "model": "tk-1",
+            "api_key": "sk-test-not-real",
+            "seat": True,
+        },
+    )
+    assert saved.status_code == 200
+    assert saved.json()["gateway"]["key_set"] is True
+    assert "sk-test-not-real" not in saved.text
+    health = client.get("/api/health").json()
+    assert health["provider"] == "tokenera"
+    assert health["model"] == "tk-1"
+    seated = client.post("/api/gateways/mock/seat").json()
+    assert seated["provider"] == "mock"
+    assert client.get("/api/health").json()["provider"] == "mock"
+
+
+def test_gateway_probe_lists_models(client, monkeypatch):
+    client.put(
+        "/api/gateways",
+        json={
+            "id": "hcnsec",
+            "label": "HCNSEC",
+            "base_url": "https://api.hcnsec.cn/v1",
+            "model": "Qwen3.8-27B",
+            "api_key": "sk-test",
+        },
+    )
+    monkeypatch.setattr(
+        "aijury.api.server.list_remote_models",
+        lambda base_url, api_key: ["Qwen3.8-27B", "other"],
+    )
+    body = client.post("/api/gateways/hcnsec/probe").json()
+    assert body["models"] == ["Qwen3.8-27B", "other"]
 
 
 def test_streamed_span_payload_is_json(client):

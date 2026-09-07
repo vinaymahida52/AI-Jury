@@ -1,7 +1,7 @@
 """OpenAI-compatible chat client (HCNSEC and similar gateways).
 
-Uses the official OpenAI SDK against a configurable base URL. For this project's
-test gateway that is `https://api.hcnsec.cn/v1` with `HCNSEC_API_KEY`.
+Uses the official OpenAI SDK against a configurable base URL. Any OpenAI-compatible
+gateway (HCNSEC, Tokenera, OpenAI, custom /v1) uses this client.
 """
 
 from __future__ import annotations
@@ -43,9 +43,9 @@ class OpenAICompatClient:
         client: Any | None = None,
     ) -> None:
         if not api_key:
-            raise RuntimeError("HCNSEC_API_KEY is not set.")
+            raise RuntimeError("API key is not set for this gateway.")
         if not model:
-            raise RuntimeError("AIJURY_MODEL must be set when provider=hcnsec.")
+            raise RuntimeError("Model is not set for this gateway.")
         if client is None:
             if OpenAI is None:
                 raise RuntimeError(

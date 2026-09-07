@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from aijury.config import Settings
 from aijury.llm.base import LLMClient
+from aijury.llm.gateways import is_openai_compat
 from aijury.llm.mock import MockLLMClient
 
 
@@ -25,14 +26,16 @@ def build_client(settings: Settings, *, persona: str = "neutral", index: int = 0
             else settings.model
         )
         return AnthropicClient(model=model)
-    if settings.provider in {"hcnsec", "openai"}:
+    if is_openai_compat(settings.provider):
         from aijury.llm.openai_client import OpenAICompatClient
 
         model = (
             settings.model_pool[index % len(settings.model_pool)]
             if settings.model_pool
-            else settings.model or "Qwen3.8-27B"
+            else settings.model
         )
+        if settings.provider == "hcnsec" and not model:
+            model = "Qwen3.8-27B"
         return OpenAICompatClient(
             model,
             api_key=settings.hcnsec_api_key,

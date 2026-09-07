@@ -58,6 +58,46 @@ button{
 button:hover:not(:disabled){background:#233748}
 button:disabled{opacity:.45;cursor:not-allowed}
 
+/* ---- gateway dock ---- */
+.dock{background:var(--sheet);border:1px solid var(--rule);padding:12px 22px;margin-bottom:22px}
+.dock.closed{padding-bottom:12px}
+.dock-bar{
+  display:flex;align-items:center;gap:12px;width:100%;margin:0;padding:6px 0;
+  border:0;background:transparent;color:inherit;cursor:pointer;text-align:left
+}
+.dock-bar:hover{background:transparent;color:inherit}
+.dock-title{font:600 13px inherit;margin:0;color:var(--ink-soft);letter-spacing:.02em;text-transform:uppercase}
+.dock-seated{font-size:13px;color:var(--ink-faint);margin-left:auto;font-weight:400}
+.chevron{width:8px;height:8px;border-right:1.5px solid var(--ink-soft);border-bottom:1.5px solid var(--ink-soft);
+  transform:rotate(45deg);transition:transform .15s ease;flex-shrink:0}
+.dock.closed .chevron{transform:rotate(-45deg)}
+.dock-body{padding-top:8px}
+.dock.closed .dock-body{display:none}
+.dock-lead{font-size:13.5px;color:var(--ink-soft);margin:0 0 14px;max-width:72ch}
+.presets,.brains{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip,.brain{
+  border:1px solid var(--rule);background:#fff;color:var(--ink);padding:7px 12px;
+  font:500 13px inherit;cursor:pointer;margin:0
+}
+.chip:hover,.brain:hover{background:var(--paper)}
+.brain.seated{border-color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
+.brain small{display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px}
+.sheet{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;
+  border-top:1px solid var(--rule);padding-top:14px;margin-top:8px
+}
+.sheet .wide{grid-column:1 / -1}
+.sheet label{margin:0}
+.sheet input, .sheet select{
+  width:100%;padding:8px 10px;border:1px solid var(--rule);background:#fff;
+  color:var(--ink);font:14px inherit
+}
+.dock-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;grid-column:1 / -1}
+.ghost{background:transparent;color:var(--ink);margin:0;padding:8px 14px;font-size:13px}
+.dock-note{font-size:13px;color:var(--ink-soft);min-height:1.2em}
+.dock-note.bad{color:var(--flag)}
+.dock-note.ok{color:var(--teal)}
+
 /* ---- live log ---- */
 .log{border-left:2px solid var(--rule);padding-left:18px;margin-bottom:30px;display:none}
 .log.on{display:block}
@@ -163,6 +203,8 @@ h3{font:600 14px inherit;margin:24px 0 9px;color:var(--ink-soft)}
   .spine::before{display:none}
   .round-no{position:static;margin-bottom:9px}
   button{margin-left:0;width:100%}
+  .dock-actions button,.chip,.brain,.dock-bar{width:auto}
+  .sheet{grid-template-columns:1fr}
   .chamber-head{grid-template-columns:1fr;gap:10px}
   .link{justify-self:start}
 }
@@ -175,6 +217,58 @@ h3{font:600 14px inherit;margin:24px 0 9px;color:var(--ink-soft)}
   <h1>AI Jury <span id="ver"></span></h1>
   <div class="status" id="status"><span class="dot down"></span>connecting</div>
 </header>
+
+<section class="dock" id="dock">
+  <button type="button" class="dock-bar" id="dock-toggle" aria-expanded="true" aria-controls="dock-body">
+    <span class="dock-title">Brains</span>
+    <span class="dock-seated" id="dock-seated"></span>
+    <span class="chevron" aria-hidden="true"></span>
+  </button>
+  <div class="dock-body" id="dock-body">
+  <p class="dock-lead">Seat any OpenAI-compatible host. Click a preset, paste the key, save, then seat. Keys stay on this machine.</p>
+  <p class="dock-note" id="gw-note"></p>
+  <div class="presets" id="presets">
+    <button type="button" class="chip" data-preset="hcnsec">HCNSEC</button>
+    <button type="button" class="chip" data-preset="tokenera">Tokenera</button>
+    <button type="button" class="chip" data-preset="openai">OpenAI</button>
+    <button type="button" class="chip" data-preset="custom">Custom</button>
+    <button type="button" class="chip" data-seat-mock="1">Offline mock</button>
+  </div>
+  <div class="brains" id="brains">
+    <button type="button" class="brain seated" data-seat-mock="1">Mock<small>offline</small></button>
+  </div>
+  <form class="sheet" id="sheet">
+    <input type="hidden" id="gw-id" value="hcnsec">
+    <div>
+      <label for="gw-label">Name</label>
+      <input id="gw-label" autocomplete="off" value="HCNSEC">
+    </div>
+    <div>
+      <label for="gw-model">Model</label>
+      <input id="gw-model" list="gw-models" autocomplete="off" value="Qwen3.8-27B">
+      <datalist id="gw-models"></datalist>
+    </div>
+    <div class="wide">
+      <label for="gw-url">Base URL</label>
+      <input id="gw-url" autocomplete="off" value="https://api.hcnsec.cn/v1">
+    </div>
+    <div class="wide">
+      <label for="gw-key">API key</label>
+      <input id="gw-key" type="password" autocomplete="off" placeholder="sk-…">
+    </div>
+    <div class="wide">
+      <label for="gw-pool">Model pool <span style="font-weight:400">(optional, comma-separated — one model per juror)</span></label>
+      <input id="gw-pool" autocomplete="off" placeholder="model-a, model-b">
+    </div>
+    <div class="dock-actions">
+      <button type="submit" class="ghost" id="gw-save">Save</button>
+      <button type="button" class="ghost" id="gw-probe">Probe models</button>
+      <button type="button" class="ghost" id="gw-seat">Seat this brain</button>
+      <button type="button" class="ghost" id="gw-drop">Remove</button>
+    </div>
+  </form>
+  </div>
+</section>
 
 <section class="ask">
   <label for="q">Question for the panel</label>
@@ -208,12 +302,163 @@ let live = null;
 let clockTimer = null;
 let convenedAt = 0;
 
-fetch("/api/health").then(r => r.json()).then(h => {
+fetch("/api/health").then(r => r.json()).then(paintHealth).catch(() => {
+  $("status").innerHTML = '<span class="dot down"></span>server unreachable';
+});
+
+function paintHealth(h) {
   $("ver").textContent = "v" + h.version;
+  const model = h.model ? ` · ${h.model}` : "";
   $("status").innerHTML =
-    `<span><span class="dot"></span>${esc(h.provider)}</span>` +
+    `<span><span class="dot"></span>${esc(h.provider)}${esc(model)}</span>` +
     `<span>${h.lessons_active} lesson${h.lessons_active === 1 ? "" : "s"} active</span>`;
-}).catch(() => { $("status").innerHTML = '<span class="dot down"></span>server unreachable'; });
+  $("dock-seated").textContent = (h.provider || "mock") + (h.model ? " · " + h.model : "");
+}
+
+function note(msg, kind) {
+  $("gw-note").className = "dock-note" + (kind ? " " + kind : "");
+  $("gw-note").textContent = msg || "";
+}
+
+function setDockOpen(open) {
+  $("dock").classList.toggle("closed", !open);
+  $("dock-toggle").setAttribute("aria-expanded", open ? "true" : "false");
+  try { localStorage.setItem("aijury-dock-open", open ? "1" : "0"); } catch (_) {}
+}
+
+$("dock-toggle").onclick = () => setDockOpen($("dock").classList.contains("closed"));
+try {
+  if (localStorage.getItem("aijury-dock-open") === "0") setDockOpen(false);
+} catch (_) {}
+
+const PRESETS = [
+  { id: "hcnsec", label: "HCNSEC", base_url: "https://api.hcnsec.cn/v1", model: "Qwen3.8-27B", hint: "The gateway this project already uses." },
+  { id: "tokenera", label: "Tokenera", base_url: "", model: "", hint: "Paste Tokenera's OpenAI-compatible base URL (usually …/v1), key, and model." },
+  { id: "openai", label: "OpenAI", base_url: "https://api.openai.com/v1", model: "gpt-4o-mini", hint: "Official OpenAI API." },
+  { id: "custom", label: "Custom", base_url: "", model: "", hint: "Any host that implements POST /v1/chat/completions." },
+];
+
+let catalog = { presets: PRESETS, gateways: [], active: "mock" };
+
+function fillSheet(g) {
+  $("gw-id").value = g.id && g.id !== "custom" ? g.id : "";
+  $("gw-label").value = g.label || "";
+  $("gw-url").value = g.base_url || "";
+  $("gw-model").value = g.model || "";
+  $("gw-pool").value = (g.model_pool || []).join(", ");
+  $("gw-key").value = "";
+  $("gw-key").placeholder = g.key_set ? `saved ${g.key_hint || "key"} — paste to replace` : "sk-…";
+  note(g.hint || "", "");
+}
+
+function renderDock() {
+  const cards = [
+    `<button type="button" class="brain${catalog.active === "mock" ? " seated" : ""}" data-seat-mock="1">
+      Mock<small>offline</small></button>`
+  ];
+  (catalog.gateways || []).forEach(g => {
+    cards.push(
+      `<button type="button" class="brain${catalog.active === g.id ? " seated" : ""}" data-edit="${esc(g.id)}">
+        ${esc(g.label)}<small>${esc(g.model || g.base_url)}</small></button>`
+    );
+  });
+  $("brains").innerHTML = cards.join("");
+  const seated = catalog.gateways.find(g => g.id === catalog.active);
+  $("dock-seated").textContent = seated
+    ? `${seated.label}${seated.model ? " · " + seated.model : ""}`
+    : (catalog.active || "mock");
+}
+
+async function loadDock() {
+  const r = await fetch("/api/gateways");
+  if (!r.ok) {
+    note("Restart the console server so the dock API can load, then refresh.", "bad");
+    renderDock();
+    return;
+  }
+  const body = await r.json();
+  catalog = { ...body, presets: body.presets?.length ? body.presets : PRESETS };
+  renderDock();
+  const h = await fetch("/api/health").then(x => x.json());
+  paintHealth(h);
+}
+
+function payloadFromSheet() {
+  return {
+    id: $("gw-id").value || undefined,
+    label: $("gw-label").value.trim(),
+    base_url: $("gw-url").value.trim(),
+    model: $("gw-model").value.trim(),
+    model_pool: $("gw-pool").value.split(",").map(s => s.trim()).filter(Boolean),
+    api_key: $("gw-key").value,
+  };
+}
+
+async function saveGateway(seat) {
+  const body = payloadFromSheet();
+  body.seat = !!seat;
+  const r = await fetch("/api/gateways", {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) { note(d.detail || "save failed", "bad"); return null; }
+  $("gw-id").value = d.gateway.id;
+  $("gw-key").value = "";
+  $("gw-key").placeholder = d.gateway.key_set ? `saved ${d.gateway.key_hint} — paste to replace` : "sk-…";
+  note(seat ? `Seated ${d.gateway.label}.` : `Saved ${d.gateway.label}.`, "ok");
+  await loadDock();
+  return d.gateway;
+}
+
+$("presets").addEventListener("click", e => {
+  const preset = e.target.closest("[data-preset]");
+  if (preset) {
+    const p = catalog.presets.find(x => x.id === preset.dataset.preset);
+    if (p) fillSheet(p);
+    return;
+  }
+  if (e.target.closest("[data-seat-mock]")) seatMock();
+});
+
+$("brains").addEventListener("click", e => {
+  if (e.target.closest("[data-seat-mock]")) { seatMock(); return; }
+  const btn = e.target.closest("[data-edit]");
+  if (!btn) return;
+  const g = catalog.gateways.find(x => x.id === btn.dataset.edit);
+  if (g) fillSheet(g);
+});
+
+$("sheet").addEventListener("submit", e => { e.preventDefault(); saveGateway(false); });
+$("gw-seat").onclick = () => saveGateway(true);
+$("gw-probe").onclick = async () => {
+  const saved = await saveGateway(false);
+  if (!saved) return;
+  note("Probing…", "");
+  const r = await fetch(`/api/gateways/${encodeURIComponent(saved.id)}/probe`, { method: "POST" });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) { note(d.detail || "probe failed", "bad"); return; }
+  $("gw-models").innerHTML = (d.models || []).map(m => `<option value="${esc(m)}">`).join("");
+  if (d.models?.length && !$("gw-model").value) $("gw-model").value = d.models[0];
+  note(d.models?.length ? `${d.models.length} models. Pick one, then seat.` : "Reachable, but no model list.", "ok");
+};
+$("gw-drop").onclick = async () => {
+  const id = $("gw-id").value;
+  if (!id) return;
+  const r = await fetch(`/api/gateways/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!r.ok) { note("could not remove", "bad"); return; }
+  note("Removed.", "ok");
+  await loadDock();
+};
+
+async function seatMock() {
+  await fetch("/api/gateways/mock/seat", { method: "POST" });
+  note("Offline mock seated.", "ok");
+  await loadDock();
+}
+
+loadDock().catch(() => note("Could not load the dock.", "bad"));
 
 const LABELS = {
   clerk: "Clerk", framer: "Framer", panel: "Panel",

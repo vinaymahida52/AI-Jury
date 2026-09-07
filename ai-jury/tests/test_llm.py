@@ -150,7 +150,7 @@ def test_hcnsec_client_requires_api_key():
     from aijury.config import Settings
     from aijury.llm.registry import build_client
 
-    with pytest.raises(RuntimeError, match="HCNSEC_API_KEY"):
+    with pytest.raises(RuntimeError, match="API key"):
         build_client(Settings(provider="hcnsec", hcnsec_api_key=""))
 
 

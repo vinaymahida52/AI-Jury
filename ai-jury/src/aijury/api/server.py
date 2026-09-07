@@ -29,6 +29,7 @@ from aijury.api.schemas import (
     ClaimView,
     CruxView,
     DeliberationView,
+    GatewayWrite,
     HealthResponse,
     PositionView,
 )
@@ -37,6 +38,12 @@ from aijury.core.errors import UnsafeInputError
 from aijury.core.tracing import Span
 from aijury.security.casual import casual_reply
 from aijury.learning.injector import load_lessons
+from aijury.llm.gateways import (
+    GatewayBook,
+    apply_gateway,
+    apply_mock,
+    list_remote_models,
+)
 from aijury.protocol.deliberation import Deliberation, DeliberationResult
 
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
@@ -117,35 +124,117 @@ def _to_view(result: DeliberationResult) -> DeliberationView:
     )
 
 
+class _Runtime:
+    """Mutable seated gateway. The console switches brains without a restart."""
+
+    def __init__(self, settings: Settings, book: GatewayBook) -> None:
+        self.settings = settings
+        self.book = book
+
+    def seat(self, gateway_id: str) -> Settings:
+        self.book.seat(gateway_id)
+        if gateway_id == "mock":
+            self.settings = apply_mock(self.settings)
+        else:
+            self.settings = apply_gateway(self.settings, self.book.get(gateway_id))
+        return self.settings
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     base_settings = settings or Settings.from_env()
+    book = GatewayBook(base_settings.gateways_path)
+    book.hydrate_from_settings(base_settings)
+    if book.active != "mock" and book.active in book.gateways:
+        base_settings = apply_gateway(base_settings, book.get(book.active))
+    runtime = _Runtime(base_settings, book)
     app = FastAPI(title="AI Jury", version=__version__)
 
     # Local operator tool. Lock this down before exposing it beyond localhost.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
         allow_headers=["*"],
     )
 
     @app.get("/api/health", response_model=HealthResponse)
     async def health() -> HealthResponse:
+        current = runtime.settings
         return HealthResponse(
             status="ok",
             version=__version__,
-            provider=base_settings.provider,
-            max_rounds=base_settings.budget.max_rounds,
-            max_jurors=base_settings.budget.max_jurors,
-            lessons_active=len(load_lessons(base_settings)),
+            provider=current.provider,
+            model=current.model,
+            max_rounds=current.budget.max_rounds,
+            max_jurors=current.budget.max_jurors,
+            lessons_active=len(load_lessons(current)),
         )
+
+    @app.get("/api/gateways")
+    async def list_gateways() -> dict[str, Any]:
+        body = runtime.book.catalog()
+        body["active"] = runtime.book.active
+        body["provider"] = runtime.settings.provider
+        body["model"] = runtime.settings.model
+        return body
+
+    @app.put("/api/gateways")
+    async def save_gateway(request: GatewayWrite) -> dict[str, Any]:
+        try:
+            gw = runtime.book.upsert(
+                label=request.label,
+                base_url=request.base_url,
+                model=request.model,
+                model_pool=request.model_pool,
+                api_key=request.api_key,
+                gateway_id=request.id,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        if request.seat:
+            runtime.seat(gw.id)
+        return {"gateway": gw.public(), "active": runtime.book.active}
+
+    @app.post("/api/gateways/{gateway_id}/seat")
+    async def seat_gateway(gateway_id: str) -> dict[str, Any]:
+        try:
+            runtime.seat(gateway_id)
+        except KeyError:
+            raise HTTPException(status_code=404, detail="unknown gateway") from None
+        return {
+            "active": runtime.book.active,
+            "provider": runtime.settings.provider,
+            "model": runtime.settings.model,
+        }
+
+    @app.post("/api/gateways/{gateway_id}/probe")
+    async def probe_gateway(gateway_id: str) -> dict[str, Any]:
+        try:
+            gw = runtime.book.get(gateway_id)
+        except KeyError:
+            raise HTTPException(status_code=404, detail="unknown gateway") from None
+        if not gw.api_key:
+            raise HTTPException(status_code=400, detail="save an API key before probing")
+        try:
+            models = await asyncio.to_thread(list_remote_models, gw.base_url, gw.api_key)
+        except Exception as exc:  # noqa: BLE001 - surface the gateway's error
+            raise HTTPException(status_code=502, detail=str(exc)[:400]) from exc
+        return {"models": models}
+
+    @app.delete("/api/gateways/{gateway_id}")
+    async def delete_gateway(gateway_id: str) -> dict[str, Any]:
+        was_active = runtime.book.active == gateway_id
+        runtime.book.drop(gateway_id)
+        if was_active:
+            runtime.seat("mock")
+        return {"active": runtime.book.active}
 
     @app.post("/api/ask", response_model=DeliberationView)
     async def ask(request: AskRequest) -> DeliberationView:
         try:
             result = await Deliberation(
-                _settings_for(request, base_settings),
-                lessons=load_lessons(base_settings) if request.use_lessons else [],
+                _settings_for(request, runtime.settings),
+                lessons=load_lessons(runtime.settings) if request.use_lessons else [],
             ).run(request.question)
         except UnsafeInputError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -159,7 +248,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> StreamingResponse:
         request = AskRequest(question=question, max_rounds=max_rounds, max_jurors=max_jurors)
         return StreamingResponse(
-            _run_streaming(request, base_settings),
+            _run_streaming(request, runtime.settings),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
         )

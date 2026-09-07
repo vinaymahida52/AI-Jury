@@ -92,6 +92,8 @@ class Settings:
     seed: int = 7
     hcnsec_api_key: str = ""
     openai_base_url: str = "https://api.hcnsec.cn/v1"
+    #: Local gateway book (keys, URLs). Never commit this file.
+    gateways_path: str = ".aijury/gateways.json"
 
     @classmethod
     def from_env(cls, *, dotenv: bool = True) -> Settings:
@@ -115,8 +117,12 @@ class Settings:
             trace_dir=os.environ.get("AIJURY_TRACE_DIR", ".traces"),
             failure_dir=os.environ.get("AIJURY_FAILURE_DIR", ".failures"),
             seed=_int("AIJURY_SEED", 7),
-            hcnsec_api_key=os.environ.get("HCNSEC_API_KEY", ""),
+            hcnsec_api_key=os.environ.get("HCNSEC_API_KEY")
+            or os.environ.get("AIJURY_API_KEY")
+            or os.environ.get("OPENAI_API_KEY")
+            or "",
             openai_base_url=os.environ.get(
                 "AIJURY_OPENAI_BASE_URL", "https://api.hcnsec.cn/v1"
             ),
+            gateways_path=os.environ.get("AIJURY_GATEWAYS", ".aijury/gateways.json"),
         )

@@ -73,6 +73,17 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     provider: str
+    model: str = ""
     max_rounds: int
     max_jurors: int
     lessons_active: int
+
+
+class GatewayWrite(BaseModel):
+    id: str | None = None
+    label: str = Field(min_length=1, max_length=80)
+    base_url: str = Field(min_length=1, max_length=400)
+    model: str = Field(default="", max_length=200)
+    model_pool: list[str] = Field(default_factory=list)
+    api_key: str = Field(default="", max_length=500)
+    seat: bool = False

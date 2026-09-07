@@ -56,9 +56,16 @@ class DeliberationResult:
 class Deliberation:
     """One question, one panel, one verdict."""
 
-    def __init__(self, settings: Settings, *, lessons: list[str] | None = None) -> None:
+    def __init__(
+        self,
+        settings: Settings,
+        *,
+        lessons: list[str] | None = None,
+        prior_knowledge: list[str] | None = None,
+    ) -> None:
         self.settings = settings
         self.lessons = lessons or []
+        self.prior_knowledge = prior_knowledge or []
 
     async def run(
         self,
@@ -73,7 +80,13 @@ class Deliberation:
             tracer.subscribe(on_span)
         ledger = BudgetLedger(self.settings.budget)
         blackboard = Blackboard(question=question)
-        ctx = AgentContext(blackboard, ledger, tracer, lessons=self.lessons)
+        ctx = AgentContext(
+            blackboard,
+            ledger,
+            tracer,
+            lessons=self.lessons,
+            prior_knowledge=self.prior_knowledge,
+        )
         degraded: list[str] = []
 
         with tracer.span("deliberation", kind="root", question=question[:200]):

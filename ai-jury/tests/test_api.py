@@ -18,12 +18,23 @@ def test_health_reports_configuration(client, settings):
     assert body["max_jurors"] == settings.budget.max_jurors
 
 
-def test_ask_returns_full_record(client):
+def test_ask_creates_thread_and_lists_history(client):
     body = client.post("/api/ask", json={"question": "Should we adopt event sourcing?"}).json()
-    assert body["verdict"]["answer"]
-    assert body["positions"], "the record must expose per-round positions"
-    assert 0.0 <= body["verified_ratio"] <= 1.0
-    assert body["budget"]["llm_calls"] > 0
+    assert body["thread_id"]
+    thread_id = body["thread_id"]
+
+    listed = client.get("/api/threads").json()
+    assert any(t["id"] == thread_id for t in listed)
+
+    follow = client.post(
+        "/api/ask",
+        json={"question": "What about the outbox pattern?", "thread_id": thread_id},
+    ).json()
+    assert follow["thread_id"] == thread_id
+
+    detail = client.get(f"/api/threads/{thread_id}").json()
+    assert len(detail["messages"]) >= 4
+    assert detail["messages"][0]["role"] == "user"
 
 
 def test_ask_rejects_empty_question(client):
@@ -72,7 +83,7 @@ def test_stream_emits_spans_then_verdict(client):
             for line in response.iter_lines()
             if line.startswith("event: ")
         ]
-    assert events[0] == "open"
+    assert events[0] == "session"
     assert "span" in events
     assert "verdict" in events
     assert events[-1] == "done"

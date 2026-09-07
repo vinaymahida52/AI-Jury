@@ -8,10 +8,8 @@ instructions that degrade the panel.
 
 from __future__ import annotations
 
-import json
-import os
 from collections import Counter, defaultdict
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from aijury.config import Settings
@@ -114,8 +112,6 @@ def failure_summary(failures: list[FailureRecord]) -> dict[str, int]:
 
 
 def save_lessons(lessons: list[Lesson], settings: Settings) -> str:
-    os.makedirs(settings.failure_dir, exist_ok=True)
-    path = os.path.join(settings.failure_dir, "lessons.json")
-    with open(path, "w", encoding="utf-8") as handle:
-        json.dump([asdict(lesson) for lesson in lessons], handle, indent=2)
-    return path
+    from aijury.learning.repository import get_repository
+
+    return get_repository(settings).save_lessons(lessons)

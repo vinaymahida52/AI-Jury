@@ -21,36 +21,41 @@ def load_dotenv(path: str | Path | None = None, *, override: bool = False) -> di
     later lines in the same file win; a value already in the process
     environment still wins unless override=True.
     """
-    if path is None:
+    paths: list[Path] = []
+    if path is not None:
+        paths = [Path(path)]
+    else:
         here = Path.cwd().resolve()
         for candidate in [here, *here.parents]:
-            if (candidate / ".env").is_file():
-                path = candidate / ".env"
+            for name in (".env", ".env.local"):
+                env_file = candidate / name
+                if env_file.is_file():
+                    paths.append(env_file)
+            if candidate.parent == candidate:
                 break
-        else:
-            return {}
-
-    env_path = Path(path)
-    if not env_path.is_file():
-        return {}
+        # Parent files first; nearer directories override via from_this_file.
+        paths.reverse()
 
     loaded: dict[str, str] = {}
-    for raw in env_path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#") or "=" not in line:
+    for env_path in paths:
+        if not env_path.is_file():
             continue
-        key, _, value = line.partition("=")
-        key = key.strip().removeprefix("export ").strip()
-        value = value.strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
-            value = value[1:-1]
-        if not key:
-            continue
-        already = key in os.environ
-        from_this_file = key in loaded
-        if override or not already or from_this_file:
-            os.environ[key] = value
-        loaded[key] = value
+        for raw in env_path.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            key = key.strip().removeprefix("export ").strip()
+            value = value.strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+                value = value[1:-1]
+            if not key:
+                continue
+            already = key in os.environ
+            from_this_file = key in loaded
+            if override or not already or from_this_file:
+                os.environ[key] = value
+            loaded[key] = value
     return loaded
 
 
@@ -94,6 +99,10 @@ class Settings:
     openai_base_url: str = "https://api.hcnsec.cn/v1"
     #: Local gateway book (keys, URLs). Never commit this file.
     gateways_path: str = ".aijury/gateways.json"
+    #: Neon / Postgres URL. Empty keeps the file-backed learning store.
+    database_url: str = ""
+    #: Cap on similar past cases injected as prior knowledge.
+    prior_case_limit: int = 3
 
     @classmethod
     def from_env(cls, *, dotenv: bool = True) -> Settings:
@@ -125,4 +134,6 @@ class Settings:
                 "AIJURY_OPENAI_BASE_URL", "https://api.hcnsec.cn/v1"
             ),
             gateways_path=os.environ.get("AIJURY_GATEWAYS", ".aijury/gateways.json"),
+            database_url=os.environ.get("DATABASE_URL", ""),
+            prior_case_limit=_int("AIJURY_PRIOR_CASE_LIMIT", 3),
         )

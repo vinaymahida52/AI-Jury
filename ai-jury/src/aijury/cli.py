@@ -57,6 +57,20 @@ def _lessons() -> int:
     return 0
 
 
+def _db_migrate() -> int:
+    settings = Settings.from_env()
+    if not settings.database_url:
+        print("DATABASE_URL is not set", file=sys.stderr)
+        return 1
+    from aijury.learning.postgres import PostgresLearningRepository
+
+    repo = PostgresLearningRepository(settings)
+    with repo._connect() as conn:
+        pass
+    print("learning-loop schema applied")
+    return 0
+
+
 def _serve(host: str, port: int, reload: bool) -> int:
     try:
         import uvicorn
@@ -88,6 +102,8 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("lessons", help="Extract lessons from the failure store.")
 
+    migrate = sub.add_parser("db-migrate", help="Apply learning-loop schema to DATABASE_URL.")
+
     serve = sub.add_parser("serve", help="Run the web console.")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
@@ -100,6 +116,8 @@ def main(argv: list[str] | None = None) -> int:
         return asyncio.run(_eval(args.dataset, args.concurrency))
     if args.command == "lessons":
         return _lessons()
+    if args.command == "db-migrate":
+        return _db_migrate()
     if args.command == "serve":
         return _serve(args.host, args.port, args.reload)
     return 2

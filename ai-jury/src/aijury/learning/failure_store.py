@@ -12,10 +12,9 @@ deterministic verifier failures, or delayed real-world outcomes.
 
 from __future__ import annotations
 
-import json
 import os
 import uuid
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from aijury.config import Settings
@@ -40,33 +39,33 @@ class FailureRecord:
     open_cruxes: list[str] = field(default_factory=list)
     belief_changes: list[dict[str, str | int]] = field(default_factory=list)
     trace_id: str = ""
+    case_id: str = ""
     created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 class FailureStore:
-    """Append-only JSONL store. Swap for Postgres in production; the interface holds."""
+    """Append-only failure log. File or Postgres via LearningRepository."""
 
     def __init__(self, settings: Settings) -> None:
-        self.path = os.path.join(settings.failure_dir, "failures.jsonl")
+        from aijury.learning.repository import get_repository
+
+        self.settings = settings
+        self._repo = get_repository(settings)
+        self.path = (
+            os.path.join(settings.failure_dir, "failures.jsonl")
+            if not settings.database_url
+            else "postgres:failures"
+        )
 
     def record(self, record: FailureRecord) -> None:
-        os.makedirs(os.path.dirname(self.path), exist_ok=True)
-        with open(self.path, "a", encoding="utf-8") as handle:
-            handle.write(json.dumps(asdict(record)) + "\n")
+        self._repo.record_failure(record)
 
     def all(self) -> list[FailureRecord]:
-        if not os.path.exists(self.path):
-            return []
-        records = []
-        with open(self.path, encoding="utf-8") as handle:
-            for line in handle:
-                if line.strip():
-                    records.append(FailureRecord(**json.loads(line)))
-        return records
+        return self._repo.all_failures()
 
     @staticmethod
     def from_deliberation(
-        result: DeliberationResult, *, expected: str, signal: str
+        result: DeliberationResult, *, expected: str, signal: str, case_id: str = ""
     ) -> FailureRecord:
         board = result.blackboard
         verdict = result.verdict
@@ -94,4 +93,5 @@ class FailureStore:
             open_cruxes=[c.description for c in board.open_cruxes()],
             belief_changes=board.belief_changes,
             trace_id=verdict.trace_id,
+            case_id=case_id,
         )

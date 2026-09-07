@@ -26,7 +26,47 @@ body{
   font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:1180px;margin:0 auto;padding:40px 28px 96px}
+.wrap{max-width:none;margin:0;padding:0;min-height:100vh}
+.shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.sidebar{
+  background:var(--paper-deep);border-right:1px solid var(--rule);
+  padding:18px 14px;display:flex;flex-direction:column;gap:12px;max-height:100vh;position:sticky;top:0
+}
+.sidebar h2{font:600 12px inherit;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin:0}
+.sidebar .new-chat{
+  width:100%;margin:0;padding:10px 12px;font-size:14px;background:var(--ink);color:var(--paper)
+}
+.sidebar .new-chat:hover:not(:disabled),.sidebar .new-chat:active:not(:disabled){
+  background:#233748;color:var(--paper)
+}
+.thread-list{overflow:auto;flex:1;display:flex;flex-direction:column;gap:4px}
+.thread-item{
+  border:0;background:transparent;color:var(--ink);text-align:left;padding:10px 10px;
+  margin:0;width:100%;cursor:pointer;font:500 13.5px/1.35 inherit
+}
+.thread-item:hover:not(:disabled),.thread-item:active:not(:disabled){
+  background:rgba(22,35,47,.06);color:var(--ink)
+}
+.thread-item:hover:not(:disabled) small,.thread-item:active:not(:disabled) small{color:var(--ink-faint)}
+.thread-item.active{background:#fff;box-shadow:inset 3px 0 0 var(--ink);color:var(--ink)}
+.thread-item.active:hover:not(:disabled),.thread-item.active:active:not(:disabled){
+  background:#fff;color:var(--ink)
+}
+.thread-item small{display:block;font-weight:400;color:var(--ink-faint);margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.main{padding:28px 28px 40px;max-width:980px}
+.transcript{display:flex;flex-direction:column;gap:14px;margin-bottom:22px}
+.bubble{background:var(--sheet);border:1px solid var(--rule);padding:14px 16px}
+.bubble.user{border-left:3px solid var(--ink)}
+.bubble.assistant{border-left:3px solid var(--teal)}
+.bubble .role{font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em}
+.bubble .body{font-size:15px;white-space:pre-wrap;max-width:70ch}
+.chat-title{font:600 18px inherit;margin:0 0 18px;color:var(--ink)}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{position:static;max-height:220px;border-right:0;border-bottom:1px solid var(--rule)}
+}
 
 /* ---- masthead ---- */
 header{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:34px;
@@ -55,7 +95,13 @@ button{
   padding:11px 26px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
   font:500 15px inherit;cursor:pointer;margin-left:auto;
 }
-button:hover:not(:disabled){background:#233748}
+button:hover:not(:disabled),
+button:active:not(:disabled){
+  background:#233748;
+  color:var(--paper);
+}
+button:hover:not(:disabled) small,
+button:active:not(:disabled) small{color:rgba(233,237,242,.8)}
 button:disabled{opacity:.45;cursor:not-allowed}
 
 /* ---- gateway dock ---- */
@@ -65,7 +111,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
   display:flex;align-items:center;gap:12px;width:100%;margin:0;padding:6px 0;
   border:0;background:transparent;color:inherit;cursor:pointer;text-align:left
 }
-.dock-bar:hover{background:transparent;color:inherit}
+.dock-bar:hover,.dock-bar:active{background:transparent;color:inherit}
 .dock-title{font:600 13px inherit;margin:0;color:var(--ink-soft);letter-spacing:.02em;text-transform:uppercase}
 .dock-seated{font-size:13px;color:var(--ink-faint);margin-left:auto;font-weight:400}
 .chevron{width:8px;height:8px;border-right:1.5px solid var(--ink-soft);border-bottom:1.5px solid var(--ink-soft);
@@ -79,7 +125,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
   border:1px solid var(--rule);background:#fff;color:var(--ink);padding:7px 12px;
   font:500 13px inherit;cursor:pointer;margin:0
 }
-.chip:hover,.brain:hover{background:var(--paper)}
+.chip:hover:not(:disabled),.brain:hover:not(:disabled),
+.chip:active:not(:disabled),.brain:active:not(:disabled){
+  background:var(--paper);color:var(--ink)
+}
+.chip:hover:not(:disabled) small,.brain:hover:not(:disabled) small,
+.chip:active:not(:disabled) small,.brain:active:not(:disabled) small{color:var(--ink-faint)}
 .brain.seated{border-color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
 .brain small{display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px}
 .sheet{
@@ -94,6 +145,9 @@ button:disabled{opacity:.45;cursor:not-allowed}
 }
 .dock-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;grid-column:1 / -1}
 .ghost{background:transparent;color:var(--ink);margin:0;padding:8px 14px;font-size:13px}
+.ghost:hover:not(:disabled),.ghost:active:not(:disabled){
+  background:#233748;color:var(--paper)
+}
 .dock-note{font-size:13px;color:var(--ink-soft);min-height:1.2em}
 .dock-note.bad{color:var(--flag)}
 .dock-note.ok{color:var(--teal)}
@@ -211,7 +265,15 @@ h3{font:600 14px inherit;margin:24px 0 9px;color:var(--ink-soft)}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap shell">
+
+<aside class="sidebar" aria-label="Past chats">
+  <h2>Chats</h2>
+  <button type="button" class="new-chat" id="new-chat">New chat</button>
+  <div class="thread-list" id="thread-list"></div>
+</aside>
+
+<div class="main">
 
 <header>
   <h1>AI Jury <span id="ver"></span></h1>
@@ -271,8 +333,10 @@ h3{font:600 14px inherit;margin:24px 0 9px;color:var(--ink-soft)}
 </section>
 
 <section class="ask">
-  <label for="q">Question for the panel</label>
-  <textarea id="q" placeholder="Should we migrate the billing service to event sourcing?"></textarea>
+  <h2 class="chat-title" id="chat-title">New chat</h2>
+  <div class="transcript" id="transcript"></div>
+  <label for="q" id="ask-label">Question for the panel</label>
+  <textarea id="q" placeholder="Ask a question — or a follow-up in this chat"></textarea>
   <div class="controls">
     <button id="go">Convene panel</button>
   </div>
@@ -291,8 +355,9 @@ h3{font:600 14px inherit;margin:24px 0 9px;color:var(--ink-soft)}
   <div class="roster" id="roster"></div>
 </div>
 <div class="log" id="log"></div>
-<div id="out"><p class="empty">No deliberation yet. Pose a question. The panel sizes itself and argues until it reaches an outcome.</p></div>
+<div id="out"></div>
 
+</div>
 </div>
 
 <script>
@@ -301,10 +366,12 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 let live = null;
 let clockTimer = null;
 let convenedAt = 0;
+let activeThreadId = null;
 
 fetch("/api/health").then(r => r.json()).then(paintHealth).catch(() => {
   $("status").innerHTML = '<span class="dot down"></span>server unreachable';
 });
+refreshThreads();
 
 function paintHealth(h) {
   $("ver").textContent = "v" + h.version;
@@ -657,10 +724,23 @@ function convene() {
   seedRoster();
   onFloor("clerk", "Convening the panel. First model call is next.");
   startClock();
+  appendLocalBubble("user", q);
+  $("q").value = "";
 
-  const url = `/api/stream?question=${encodeURIComponent(q)}`;
+  let url = `/api/stream?question=${encodeURIComponent(q)}`;
+  if (activeThreadId) url += `&thread_id=${encodeURIComponent(activeThreadId)}`;
   live = new EventSource(url);
 
+  live.addEventListener("session", e => {
+    try {
+      const d = JSON.parse(e.data);
+      if (d.thread_id) {
+        activeThreadId = d.thread_id;
+        $("ask-label").textContent = "Follow-up in this chat";
+        $("chat-title").textContent = q.length > 72 ? q.slice(0, 69) + "…" : q;
+      }
+    } catch (_) {}
+  });
   live.addEventListener("live", e => {
     const { attributes } = JSON.parse(e.data);
     const a = attributes || {};
@@ -688,13 +768,22 @@ function convene() {
     }
     if (name === "agent.failed") markSeat(attributes.agent, "");
   });
-  live.addEventListener("verdict", e => render(JSON.parse(e.data)));
+  live.addEventListener("verdict", e => {
+    const d = JSON.parse(e.data);
+    if (d.thread_id) activeThreadId = d.thread_id;
+    appendLocalBubble("assistant", d.verdict?.answer || "");
+    render(d);
+    refreshThreads();
+  });
   live.addEventListener("chat", e => {
-    const { reply } = JSON.parse(e.data);
+    const { reply, thread_id } = JSON.parse(e.data);
+    if (thread_id) activeThreadId = thread_id;
     hideChamber();
     $("log").className = "log";
     $("log").innerHTML = "";
-    $("out").innerHTML = `<div class="verdict"><p class="answer">${esc(reply)}</p></div>`;
+    appendLocalBubble("assistant", reply);
+    $("out").innerHTML = "";
+    refreshThreads();
   });
   live.addEventListener("error", e => {
     const d = JSON.parse(e.data || "{}");
@@ -706,7 +795,7 @@ function convene() {
     live?.close();
     live = null;
     $("go").disabled = false;
-    $("go").textContent = "Convene panel";
+    $("go").textContent = activeThreadId ? "Ask follow-up" : "Convene panel";
     $("beat").className = "beat";
     stopClock();
   };
@@ -714,10 +803,70 @@ function convene() {
   live.onerror = () => { if (live?.readyState === 2) finish(); };
 }
 
+function appendLocalBubble(role, content) {
+  if (!content) return;
+  const el = document.createElement("div");
+  el.className = "bubble " + role;
+  el.innerHTML = `<div class="role">${role === "user" ? "You" : "Jury"}</div><div class="body">${esc(content)}</div>`;
+  $("transcript").appendChild(el);
+  el.scrollIntoView({ block: "nearest" });
+}
+
+async function refreshThreads() {
+  try {
+    const rows = await fetch("/api/threads").then(r => r.json());
+    const list = $("thread-list");
+    list.innerHTML = "";
+    if (!rows.length) {
+      list.innerHTML = '<p class="empty" style="padding:12px 4px;font-size:13px">No past chats yet.</p>';
+      return;
+    }
+    rows.forEach(t => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "thread-item" + (t.id === activeThreadId ? " active" : "");
+      btn.innerHTML = `${esc(t.title)}<small>${esc(t.preview || "Open chat")}</small>`;
+      btn.onclick = () => openThread(t.id);
+      list.appendChild(btn);
+    });
+  } catch (_) {}
+}
+
+async function openThread(id) {
+  if (live) return;
+  const detail = await fetch(`/api/threads/${encodeURIComponent(id)}`).then(r => r.json());
+  activeThreadId = detail.id;
+  $("chat-title").textContent = detail.title || "Chat";
+  $("ask-label").textContent = "Follow-up in this chat";
+  $("go").textContent = "Ask follow-up";
+  $("transcript").innerHTML = "";
+  $("out").innerHTML = "";
+  $("log").className = "log";
+  hideChamber();
+  (detail.messages || []).forEach(m => appendLocalBubble(m.role === "user" ? "user" : "assistant", m.content));
+  refreshThreads();
+}
+
+function startNewChat() {
+  if (live) return;
+  activeThreadId = null;
+  $("chat-title").textContent = "New chat";
+  $("ask-label").textContent = "Question for the panel";
+  $("go").textContent = "Convene panel";
+  $("transcript").innerHTML = "";
+  $("out").innerHTML = '<p class="empty">No deliberation yet. Pose a question. Follow-ups stay in this chat; past chats are in the sidebar.</p>';
+  $("log").className = "log";
+  hideChamber();
+  refreshThreads();
+  $("q").focus();
+}
+
+$("new-chat").onclick = startNewChat;
 $("go").onclick = convene;
 $("q").addEventListener("keydown", e => {
   if ((e.metaKey || e.ctrlKey) && e.key === "Enter") convene();
 });
+startNewChat();
 </script>
 </body>
 </html>

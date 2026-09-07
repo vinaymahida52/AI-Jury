@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from aijury.config import Settings
 from aijury.contracts.taxonomy import QuestionType
 from aijury.contracts.verdict import Verdict
 from aijury.evaluation.scorer import Score, expected_calibration_error, score_verdict
+from aijury.learning.failure_store import FailureRecord, FailureStore
 from aijury.pipeline import JuryPipeline
 
 
@@ -128,7 +130,8 @@ async def run_eval(
 
     async def one(case: EvalCase) -> tuple[tuple[Score, Verdict], tuple[Score, Verdict] | None]:
         async with semaphore:
-            jury_verdict = (await pipeline.ask(case.question, use_lessons=False)).verdict
+            pipeline_result = await pipeline.ask(case.question, use_lessons=False)
+            jury_verdict = pipeline_result.verdict
             base_verdict = (
                 await answer_baseline(case.question, settings) if include_baseline else None
             )
@@ -138,6 +141,31 @@ async def run_eval(
             expected_type=case.question_type,
             acceptable=case.acceptable,
         )
+        if not jury_score.correct:
+            if pipeline_result.deliberation is not None:
+                FailureStore(settings).record(
+                    FailureStore.from_deliberation(
+                        pipeline_result.deliberation,
+                        expected=case.expected_answer,
+                        signal="eval_ground_truth",
+                        case_id=pipeline_result.case_id or "",
+                    )
+                )
+            else:
+                FailureStore(settings).record(
+                    FailureRecord(
+                        id=uuid.uuid4().hex[:12],
+                        question=case.question,
+                        question_type=case.question_type,
+                        expected=case.expected_answer,
+                        produced=jury_verdict.answer,
+                        confidence=jury_verdict.confidence,
+                        outcome=jury_verdict.outcome.value,
+                        signal="eval_ground_truth",
+                        trace_id=jury_verdict.trace_id,
+                        case_id=pipeline_result.case_id or "",
+                    )
+                )
         base_pair = None
         if base_verdict is not None:
             base_pair = (

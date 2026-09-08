@@ -30,6 +30,22 @@ async def test_structured_completion_validates_against_schema():
     assert isinstance(result, Sample) and response.tokens_out > 0
 
 
+def test_compact_json_schema_drops_pretty_print_and_metadata():
+    import json
+
+    from aijury.contracts.verdict import Verdict
+    from aijury.llm.base import compact_json_schema
+
+    compact = compact_json_schema(Verdict)
+    pretty = json.dumps(Verdict.model_json_schema(), indent=2)
+    assert "\n" not in compact
+    assert "$schema" not in compact
+    assert len(compact) < len(pretty)
+    parsed = json.loads(compact)
+    assert "properties" in parsed
+    assert "answer" in parsed["properties"]
+
+
 async def test_structured_completion_raises_after_retries():
     class Broken:
         model = "broken"

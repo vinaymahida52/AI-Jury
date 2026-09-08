@@ -111,7 +111,7 @@ class Blackboard:
             counts[claim.fingerprint] += 1
         return dict(counts)
 
-    def transcript(self, *, anonymized: bool = False) -> str:
+    def transcript(self, *, anonymized: bool = False, with_verification: bool = False) -> str:
         """Render positions for agent consumption.
 
         Anonymized by default during cross-examination: stripping author identity
@@ -123,7 +123,14 @@ class Blackboard:
             label = f"Position {index}" if anonymized else position.author
             body = [f"[{label}] (confidence {position.confidence:.2f})", position.summary]
             for claim in position.claims:
-                body.append(f"  claim: {claim.text}")
+                line = f"  claim: {claim.text}"
+                if with_verification:
+                    if claim.verified is True:
+                        line += " [verified]"
+                    elif claim.verified is False:
+                        note = claim.verification_note or "rejected"
+                        line += f" [failed: {note}]"
+                body.append(line)
             if position.strongest_counterargument:
                 body.append(f"  concedes: {position.strongest_counterargument}")
             chunks.append("\n".join(body))

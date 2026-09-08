@@ -49,6 +49,29 @@ class LLMClient(Protocol):
 _FENCE = re.compile(r"```(?:json)?\s*(.*?)```", re.DOTALL)
 
 
+def compact_json_schema(schema: type[BaseModel]) -> str:
+    """Schema text for the model: same contract, no pretty-print tax.
+
+    This string is prepended to every agent call. Indentation and Pydantic's
+    `$schema`/`title` metadata are not part of the contract and would otherwise
+    be billed on every juror, every round.
+    """
+    raw = schema.model_json_schema()
+    return json.dumps(_strip_schema_noise(raw), separators=(",", ":"), ensure_ascii=False)
+
+
+def _strip_schema_noise(node: Any) -> Any:
+    if isinstance(node, dict):
+        return {
+            key: _strip_schema_noise(value)
+            for key, value in node.items()
+            if key not in {"$schema", "title"}
+        }
+    if isinstance(node, list):
+        return [_strip_schema_noise(item) for item in node]
+    return node
+
+
 def extract_json(text: str) -> Any:
     """Pull a JSON object out of model output, tolerating fences and preamble."""
     candidate = text.strip()
@@ -105,7 +128,7 @@ async def complete_structured(
     a formatting slip than a reasoning failure, and re-prompting with the
     validation error recovers most of them cheaply.
     """
-    contract = json.dumps(schema.model_json_schema(), indent=2)
+    contract = compact_json_schema(schema)
     sys_prompt = (
         f"{system}\n\n"
         "Respond with a single JSON object and nothing else. No prose, no code "

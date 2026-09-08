@@ -52,7 +52,10 @@ class Agent(ABC):
                 "\n\nCorrections learned from prior failures of this system. "
                 f"They are constraints, not suggestions:\n{lessons}"
             )
-        if ctx.prior_knowledge:
+        # Priors are billed once per agent call. Repeating them to every juror
+        # also reintroduces herding toward past answers. Intake and the final
+        # write-up are the only roles that need them.
+        if ctx.prior_knowledge and self.role in {Role.FRAMER, Role.SYNTHESIZER}:
             priors = "\n\n".join(ctx.prior_knowledge)
             base += (
                 "\n\nRelated past deliberations for context. Use as evidence to "

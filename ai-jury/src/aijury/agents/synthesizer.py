@@ -55,19 +55,14 @@ class Synthesizer(Agent):
         frame = board.frame
         qtype = frame.question_type if frame else QuestionType.ANALYTICAL
 
-        verified = [c for c in board.claims.values() if c.verified is True]
-        failed = board.failed_claims()
         prompt = (
             f"Question:\n{question}\n\n"
-            f"Final positions:\n{board.transcript()}\n\n"
-            f"Verified claims:\n"
-            + ("\n".join(f"- {c.text}" for c in verified) or "- none")
-            + "\n\nClaims that failed verification (do not rely on these):\n"
-            + ("\n".join(f"- {c.text} ({c.verification_note})" for c in failed) or "- none")
-            + "\n\nOpen disagreements:\n"
+            f"Final positions:\n{board.transcript(with_verification=True)}\n\n"
+            f"Open disagreements:\n"
             + ("\n".join(f"- {c.description}" for c in board.open_cruxes()) or "- none")
             + f"\n\nDeliberation ended because: {stop_reason.value}. "
             f"Panel agreement: {agreement:.2f}.\n"
+            "Treat [failed] claims as unusable. Only [verified] claims raise confidence.\n"
             "Write the verdict."
         )
         verdict = await self.ask(ctx, Verdict, prompt, max_tokens=3000)

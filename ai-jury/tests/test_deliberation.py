@@ -183,3 +183,32 @@ async def test_failed_adversary_is_skipped_in_later_rounds(settings, monkeypatch
     assert any("adversary" in note for note in result.degraded)
     assert error not in result.blackboard.transcript()
     assert not any(p.author == "adversary" for p in result.blackboard.positions)
+
+
+def test_past_cases_are_not_injected_into_jurors():
+    """Priors belong on intake and the verdict, not on every seat."""
+    from aijury.agents.base import AgentContext
+    from aijury.agents.framer import Framer
+    from aijury.agents.juror import Juror
+    from aijury.agents.synthesizer import Synthesizer
+    from aijury.agents.verifier import Verifier
+    from aijury.config import Budget
+    from aijury.core.blackboard import Blackboard
+    from aijury.core.budget import BudgetLedger
+    from aijury.core.tracing import Tracer
+    from aijury.llm.mock import MockLLMClient
+
+    ctx = AgentContext(
+        Blackboard(question="q"),
+        BudgetLedger(Budget()),
+        Tracer(),
+        prior_knowledge=["SECRET_PRIOR_CASE"],
+        lessons=["do not invent citations"],
+    )
+    client = MockLLMClient()
+    juror_prompt = Juror("juror_1_cost", "cost", client).system_prompt(ctx)
+    assert "SECRET_PRIOR_CASE" not in juror_prompt
+    assert "do not invent citations" in juror_prompt
+    assert "SECRET_PRIOR_CASE" not in Verifier(client).system_prompt(ctx)
+    assert "SECRET_PRIOR_CASE" in Framer(client).system_prompt(ctx)
+    assert "SECRET_PRIOR_CASE" in Synthesizer(client).system_prompt(ctx)

@@ -38,6 +38,20 @@ def test_transcript_anonymization_hides_authors():
     assert "juror_alpha" not in text and "Position 1" in text
 
 
+def test_transcript_can_mark_verified_claims():
+    board = Blackboard(question="q")
+    position = _pos("j1", "s")
+    position.claims = [
+        Claim(text="ok", author="j1", round_index=0, verified=True),
+        Claim(text="bad", author="j1", round_index=0, verified=False, verification_note="no"),
+    ]
+    board.submit(position)
+    text = board.transcript(with_verification=True)
+    assert "[verified]" in text
+    assert "[failed: no]" in text
+    assert "[verified]" not in board.transcript()
+
+
 def test_current_positions_takes_latest_per_author():
     board = Blackboard(question="q")
     board.submit(_pos("j1", "old"))

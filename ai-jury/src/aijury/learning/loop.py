@@ -9,6 +9,8 @@ from aijury.learning.repository import get_repository
 from aijury.protocol.deliberation import DeliberationResult
 from aijury.security.injection import sanitize_untrusted
 
+MAX_THREAD_HISTORY_LINES = 8
+
 
 @dataclass(frozen=True)
 class DeliberationContext:
@@ -37,7 +39,7 @@ def build_deliberation_context(
             for prior in priors
         )
     if thread_id:
-        history = repo.thread_history_lines(thread_id)
+        history = repo.thread_history_lines(thread_id)[-MAX_THREAD_HISTORY_LINES:]
         if history:
             knowledge.append(
                 sanitize_untrusted(

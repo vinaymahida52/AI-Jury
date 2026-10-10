@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+.aijury/
+.traces/
+.failures/
+dist/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
